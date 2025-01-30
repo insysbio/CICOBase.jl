@@ -1,6 +1,6 @@
 ### Derivative free optimization tests
 
-using LikelihoodProfiler
+using CICO
 
 # The following NLopt derivative-free algorithms are compared
 dfo_algorithms = [

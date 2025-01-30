@@ -2,7 +2,7 @@
 # Pkg.add("NLopt")
 # Pkg.add("RecipesBase")
 
-using LikelihoodProfiler, Test
+using CICO, Test
 using NLopt
 
 NLopt.srand(12345)

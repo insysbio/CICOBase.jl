@@ -1,5 +1,5 @@
 @testset "profile" begin
-    prof = LikelihoodProfiler._profile(
+    prof = CICO._profile(
         [3., 2., 2.1],
         1,
         f_3p_1im_dep;

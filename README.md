@@ -1,15 +1,15 @@
-# LikelihoodProfiler
+# CICO - Confidence Intervals by Constrained Optimization
 
-[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://insysbio.github.io/LikelihoodProfiler.jl/latest)
-[![Build status](https://github.com/insysbio/LikelihoodProfiler.jl/workflows/CI/badge.svg)](https://github.com/insysbio/LikelihoodProfiler.jl/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/github/insysbio/LikelihoodProfiler.jl/badge.svg?branch=master)](https://coveralls.io/github/insysbio/LikelihoodProfiler.jl?branch=master)
-[![version](https://juliahub.com/docs/General/LikelihoodProfiler/stable/version.svg)](https://juliahub.com/ui/Packages/General/LikelihoodProfiler)
-[![GitHub license](https://img.shields.io/github/license/insysbio/LikelihoodProfiler.jl.svg)](https://github.com/insysbio/LikelihoodProfiler.jl/blob/master/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://insysbio.github.io/CICO.jl/latest)
+[![Build status](https://github.com/insysbio/CICO.jl/workflows/CI/badge.svg)](https://github.com/insysbio/CICO.jl/actions?query=workflow%3ACI)
+[![Coverage Status](https://coveralls.io/repos/github/insysbio/CICO.jl/badge.svg?branch=master)](https://coveralls.io/github/insysbio/CICO.jl?branch=master)
+[![version](https://juliahub.com/docs/General/CICO/stable/version.svg)](https://juliahub.com/ui/Packages/General/CICO)
+[![GitHub license](https://img.shields.io/github/license/insysbio/CICO.jl.svg)](https://github.com/insysbio/CICO.jl/blob/master/LICENSE)
 [![DOI:10.1371/journal.pcbi.1008495](https://zenodo.org/badge/DOI/10.1371/journal.pcbi.1008495.svg)](https://doi.org/10.1371/journal.pcbi.1008495)
 
-**LikelihoodProfiler** is a [Julia language](https://julialang.org/downloads/) package for [identifiability analysis](https://en.wikipedia.org/wiki/Identifiability_analysis) and confidence intervals estimation.
+**CICO** is a [Julia language](https://julialang.org/downloads/) package for [identifiability analysis](https://en.wikipedia.org/wiki/Identifiability_analysis) and confidence intervals estimation.
 
-See [documentation](https://insysbio.github.io/LikelihoodProfiler.jl/latest/).
+See [documentation](https://insysbio.github.io/CICO.jl/latest/).
 
 ## Use cases
 Notebooks with use cases can be found in a separate repository: <https://github.com/insysbio/likelihoodprofiler-cases>
@@ -29,13 +29,13 @@ Notebooks with use cases can be found in a separate repository: <https://github.
 ```julia
 julia> ]
 
-(v1.7) pkg> add LikelihoodProfiler
+(v1.9) pkg> add CICO
 ```
 
 ## Quick start
 
 ```julia
-using LikelihoodProfiler
+using CICO
 
 # testing profile function
 f(x) = 5.0 + (x[1]-3.0)^2 + (x[1]-x[2]-1.0)^2 + 0*x[3]^2

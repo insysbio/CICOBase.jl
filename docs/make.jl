@@ -1,10 +1,10 @@
 
-using LikelihoodProfiler
+using CICO
 using Documenter
 
 makedocs(
-    modules = [LikelihoodProfiler],
-    sitename = "LikelihoodProfiler Documentation",
+    modules = [CICO],
+    sitename = "CICO Documentation",
     pages = [
         "Home" => "index.md",
         "Methods" => "methods.md",
@@ -16,5 +16,5 @@ makedocs(
 
 
 deploydocs(
-    repo   = "github.com/insysbio/LikelihoodProfiler.jl.git"
+    repo   = "github.com/insysbio/CICO.jl.git"
 )

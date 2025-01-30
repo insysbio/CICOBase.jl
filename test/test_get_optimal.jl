@@ -1,6 +1,6 @@
 # tests for `get_optimal` method
 # testing only the case f_2p
-# using LikelihoodProfiler
+# using CICO
 
 @testset "testing get_optimal() for :LN_PRAXIS and f_2p, identifiable" begin
     res0 = get_optimal(

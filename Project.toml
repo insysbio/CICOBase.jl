@@ -1,10 +1,10 @@
-name = "LikelihoodProfiler"
-uuid = "93acb638-a083-5915-8dce-d129bc6a3f59"
+name = "CICO"
+uuid = "3dd46a44-db60-4b84-9569-9c960c7341a8"
 keywords = ["package", "identifiability", "modeling"]
 license = "MIT"
 desc = "practical identifiability analysis and confidence intervals evaluation"
 authors = ["borisov <iv.borissov@gmail.com>", "metelkin <evgeny.metelkin@gmail.com>"]
-repo-url = "https://github.com/insysbio/LikelihoodProfiler.jl"
+repo-url = "https://github.com/insysbio/CICO.jl"
 version = "0.5.2"
 
 [deps]

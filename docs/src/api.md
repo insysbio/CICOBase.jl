@@ -3,6 +3,6 @@
 The package exports the following functions for **parameters identifiability analysis**, **confidence intervals evaluation** and **results visualization**.
 
 ```@autodocs
-Modules = [LikelihoodProfiler]
+Modules = [CICO]
 Order   = [:function, :type, :module]
 ```
