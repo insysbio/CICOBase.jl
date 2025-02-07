@@ -17,5 +17,6 @@ makedocs(
 
 deploydocs(
     repo   = "github.com/insysbio/CICO.jl.git",
-    devbranch="master"
+    devbranch="master",
+    devurl = "latest",
 )
