@@ -1,5 +1,5 @@
 @testset "profile" begin
-    prof = CICO._profile(
+    prof = CICOCore._profile(
         [3., 2., 2.1],
         1,
         f_3p_1im_dep;

@@ -1,10 +1,10 @@
 
-using CICO
+using CICOCore
 using Documenter
 
 makedocs(
-    modules = [CICO],
-    sitename = "CICO Documentation",
+    modules = [CICOCore],
+    sitename = "CICOCore Documentation",
     pages = [
         "Home" => "index.md",
         "Methods" => "methods.md",
@@ -16,7 +16,7 @@ makedocs(
 
 
 deploydocs(
-    repo   = "github.com/insysbio/CICO.jl.git",
+    repo   = "github.com/insysbio/CICOCore.jl.git",
     devbranch="master",
     devurl = "latest",
 )

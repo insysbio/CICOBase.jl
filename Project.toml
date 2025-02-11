@@ -1,10 +1,10 @@
-name = "CICO"
-uuid = "3dd46a44-db60-4b84-9569-9c960c7341a8"
+name = "CICOCore"
+uuid = "33444335-3134-4342-4659-594331344435"
 keywords = ["package", "identifiability", "modeling"]
 license = "MIT"
 desc = "practical identifiability analysis and confidence intervals evaluation"
 authors = ["borisov <iv.borissov@gmail.com>", "metelkin <evgeny.metelkin@gmail.com>"]
-repo-url = "https://github.com/insysbio/CICO.jl"
+repo-url = "https://github.com/insysbio/CICOCore.jl"
 version = "0.5.2"
 
 [deps]

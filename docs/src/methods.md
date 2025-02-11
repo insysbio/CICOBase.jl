@@ -1,6 +1,6 @@
 # Methods
 
- Three methods implemented in **CICO** package: `:CICO_ONE_PASS`,
+ Three methods implemented in **CICOCore** package: `:CICO_ONE_PASS`,
  `:LIN_EXTRAPOL`,
  `:QUADR_EXTRAPOL`.
 

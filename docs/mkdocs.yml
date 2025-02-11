@@ -1,5 +1,5 @@
-site_name:        CICO.jl
-repo_url:         https://github.com/insysbio/CICO.jl
+site_name:        CICOCore.jl
+repo_url:         https://github.com/insysbio/CICOCore.jl
 site_description: A Julia package for identifiability analysis and confidence intervals estimation.
 site_author:      InSysBio
 

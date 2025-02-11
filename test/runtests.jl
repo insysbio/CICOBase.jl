@@ -2,7 +2,7 @@
 # Pkg.add("NLopt")
 # Pkg.add("RecipesBase")
 
-using CICO, Test
+using CICOCore, Test
 using NLopt
 
 NLopt.srand(12345)

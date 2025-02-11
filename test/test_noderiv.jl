@@ -1,4 +1,4 @@
-using CICO, Plots
+using CICOCore, Plots
 
 # functions with zero derivative at one of the endpoints
 f1(x) = 3x[1]^4 - 6x[1]^3 + 5

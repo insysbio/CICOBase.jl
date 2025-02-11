@@ -1,8 +1,8 @@
 # Note on optimizers
 
-Currently **CICO** relies on [`NLopt`](https://nlopt.readthedocs.io/en/latest/). 
+Currently **CICOCore** relies on [`NLopt`](https://nlopt.readthedocs.io/en/latest/). 
 
-Internally **CICO** utilizes `:LN_AUGLAG` algorithm from **NLopt** to construct an augmented objective function with a set of bound constrains. Then the augmented objective function is passed to an optimization algorithm, which is defined by the keyword argument `local_alg` (see [`CICO.get_interval`](@ref)).
+Internally **CICOCore** utilizes `:LN_AUGLAG` algorithm from **NLopt** to construct an augmented objective function with a set of bound constrains. Then the augmented objective function is passed to an optimization algorithm, which is defined by the keyword argument `local_alg` (see [`CICOCore.get_interval`](@ref)).
 
 Default `local_alg` = `:LN_NELDERMEAD`, which is the most reliable for the current problem among the derivative-free algorithms. 
 Any [`NLopt`](https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/) algorithm could be potentially used as `local_alg`.

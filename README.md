@@ -1,15 +1,15 @@
 # CICO - Confidence Intervals by Constrained Optimization
 
-[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://insysbio.github.io/CICO.jl/latest)
-[![Build status](https://github.com/insysbio/CICO.jl/workflows/CI/badge.svg)](https://github.com/insysbio/CICO.jl/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/github/insysbio/CICO.jl/badge.svg?branch=master)](https://coveralls.io/github/insysbio/CICO.jl?branch=master)
-[![version](https://juliahub.com/docs/General/CICO/stable/version.svg)](https://juliahub.com/ui/Packages/General/CICO)
-[![GitHub license](https://img.shields.io/github/license/insysbio/CICO.jl.svg)](https://github.com/insysbio/CICO.jl/blob/master/LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://insysbio.github.io/CICOCore.jl/latest)
+[![Build status](https://github.com/insysbio/CICOCore.jl/workflows/CI/badge.svg)](https://github.com/insysbio/CICOCore.jl/actions?query=workflow%3ACI)
+[![Coverage Status](https://coveralls.io/repos/github/insysbio/CICOCore.jl/badge.svg?branch=master)](https://coveralls.io/github/insysbio/CICOCore.jl?branch=master)
+[![version](https://juliahub.com/docs/General/CICOCore/stable/version.svg)](https://juliahub.com/ui/Packages/General/CICOCore)
+[![GitHub license](https://img.shields.io/github/license/insysbio/CICOCore.jl.svg)](https://github.com/insysbio/CICOCore.jl/blob/master/LICENSE)
 [![DOI:10.1371/journal.pcbi.1008495](https://zenodo.org/badge/DOI/10.1371/journal.pcbi.1008495.svg)](https://doi.org/10.1371/journal.pcbi.1008495)
 
-**CICO** is a [Julia language](https://julialang.org/downloads/) package for [identifiability analysis](https://en.wikipedia.org/wiki/Identifiability_analysis) and confidence intervals estimation.
+**CICOCore** is a [Julia language](https://julialang.org/downloads/) package for [identifiability analysis](https://en.wikipedia.org/wiki/Identifiability_analysis) and confidence intervals estimation.
 
-See [documentation](https://insysbio.github.io/CICO.jl/latest/).
+See [documentation](https://insysbio.github.io/CICOCore.jl/latest/).
 
 ## Use cases
 Notebooks with use cases can be found in a separate repository: <https://github.com/insysbio/likelihoodprofiler-cases>
@@ -29,13 +29,13 @@ Notebooks with use cases can be found in a separate repository: <https://github.
 ```julia
 julia> ]
 
-(v1.9) pkg> add CICO
+(v1.9) pkg> add CICOCore
 ```
 
 ## Quick start
 
 ```julia
-using CICO
+using CICOCore
 
 # testing profile function
 f(x) = 5.0 + (x[1]-3.0)^2 + (x[1]-x[2]-1.0)^2 + 0*x[3]^2

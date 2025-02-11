@@ -1,6 +1,6 @@
 #__precompile__(false)
 """
-Main module for `CICO.jl`.
+Main module for `CICOCore.jl`.
 
 Four functions are exported from this module for public use:
 
@@ -10,7 +10,7 @@ Four functions are exported from this module for public use:
 - [`update_profile_points!`](@ref). Updates confidence interval with likelihood profile points.
 
 """
-module CICO
+module CICOCore
 
 using NLopt, ForwardDiff
 using Calculus

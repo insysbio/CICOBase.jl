@@ -28,7 +28,7 @@ end
 
 @testset "test profile error" begin
     err_func = err_fun_generate()
-    prof = CICO._profile(
+    prof = CICOCore._profile(
         [3., 4.],
         1,
         err_func
