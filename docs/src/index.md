@@ -1,6 +1,6 @@
 # Overview
 
-**CICOCore** is a [Julia](https://julialang.org/downloads/) package for **identifiability analysis** and **confidence intervals** estimation.
+**CICOBase** is a [Julia](https://julialang.org/downloads/) package for **identifiability analysis** and **confidence intervals** estimation.
 
 ## Use cases
 Notebooks with use cases can be found in a separate repository: <https://github.com/insysbio/likelihoodprofiler-cases>
@@ -19,13 +19,13 @@ Notebooks with use cases can be found in a separate repository: <https://github.
 ```julia
 julia> ]
 
-(v1.9) pkg> add CICOCore
+(v1.9) pkg> add CICOBase
 ```
 
 ## Quick start
 
 ```julia
-using CICOCore
+using CICOBase
 
 # testing profile function
 f(x) = 5.0 + (x[1]-3.0)^2 + (x[1]-x[2]-1.0)^2 + 0*x[3]^2
@@ -46,11 +46,11 @@ plotly()
 plot(res_1)
 ```
 
-![plot_lin](https://github.com/insysbio/CICOCore.jl/blob/master/img/plot_lin.png?raw=true)
+![plot_lin](https://github.com/insysbio/CICOBase.jl/blob/master/img/plot_lin.png?raw=true)
 
 ## Intro
 
-The reliability and predictability of a **kinetic systems biology (SB) and systems pharmacology (SP) model** depends on the calibration of model parameters. Experimental data can be insufficient to determine all the parameters unambiguously. This results in "non-identifiable" parameters and parameters identifiable within confidence intervals (CIs). The algorithms included in **CICOCore** implement Profile Likelihood (PL) [2] method for parameters identification and can be applied to complex SB models. The results of the algorithms can be used to qualify and calibrate parameters or to reduce the model.
+The reliability and predictability of a **kinetic systems biology (SB) and systems pharmacology (SP) model** depends on the calibration of model parameters. Experimental data can be insufficient to determine all the parameters unambiguously. This results in "non-identifiable" parameters and parameters identifiable within confidence intervals (CIs). The algorithms included in **CICOBase** implement Profile Likelihood (PL) [2] method for parameters identification and can be applied to complex SB models. The results of the algorithms can be used to qualify and calibrate parameters or to reduce the model.
 
 ## Objective
 

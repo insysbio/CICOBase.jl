@@ -1,15 +1,15 @@
 # Visualization
 
-[`CICOCore.get_interval`](@ref) function returns estimated
+[`CICOBase.get_interval`](@ref) function returns estimated
 confidence interval along with other data as
-[`CICOCore.ParamInterval`](@ref) structure.
+[`CICOBase.ParamInterval`](@ref) structure.
 
-**CICOCore** provides a `@recipe` for **Plots.jl** to visualize
+**CICOBase** provides a `@recipe` for **Plots.jl** to visualize
 confidence interval estimation and plot parameter's profile based on
-[`CICOCore.ParamInterval`](@ref).
+[`CICOBase.ParamInterval`](@ref).
 
 ```
-using CICOCore
+using CICOBase
 
 # Likelihood function
 f(x) = 5.0 + (x[1]-3.0)^2 + (x[1]-x[2]-1.0)^2 + 0*x[3]^2
@@ -30,9 +30,9 @@ plotly()
 plot(res[2])
 ```
 
-![](https://github.com/insysbio/CICOCore.jl/blob/master/img/plot_cico.png?raw=true)
+![](https://github.com/insysbio/CICOBase.jl/blob/master/img/plot_cico.png?raw=true)
 
-To make a smooth plot one can compute more profile points with [`CICOCore.update_profile_points!`](@ref) which internally uses [`PlotUtils.adapted_grid`](https://github.com/JuliaPlots/PlotUtils.jl/blob/master/src/adapted_grid.jl)
+To make a smooth plot one can compute more profile points with [`CICOBase.update_profile_points!`](@ref) which internally uses [`PlotUtils.adapted_grid`](https://github.com/JuliaPlots/PlotUtils.jl/blob/master/src/adapted_grid.jl)
 
 ```
 update_profile_points!(res[2])
@@ -40,4 +40,4 @@ update_profile_points!(res[2])
 plot(res[2])
 ```
 
-![](https://github.com/insysbio/CICOCore.jl/blob/master/img/plot_cico_smooth.png?raw=true)
+![](https://github.com/insysbio/CICOBase.jl/blob/master/img/plot_cico_smooth.png?raw=true)

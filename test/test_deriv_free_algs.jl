@@ -1,6 +1,6 @@
 ### Derivative free optimization tests
 
-using CICOCore
+using CICOBase
 
 # The following NLopt derivative-free algorithms are compared
 dfo_algorithms = [
