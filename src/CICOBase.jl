@@ -41,7 +41,6 @@ export get_right_endpoint,
     ParamIntervalInput,
     ParamInterval,
     get_interval,
-    profile,
     update_profile_points!,
     get_optimal
 end #module
