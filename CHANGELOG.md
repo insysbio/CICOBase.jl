@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.3
+
+- `profile` function removed from public API (export)
+
 ## 0.5.2
 
 - fix NLopt compatibility
