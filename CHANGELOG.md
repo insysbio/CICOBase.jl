@@ -3,6 +3,7 @@
 ## 0.5.3
 
 - `profile` function removed from public API (export)
+- rename package to **CICOBase.jl**
 
 ## 0.5.2
 
