@@ -35,7 +35,7 @@ res_1 = get_interval(
   [3., 2., 2.1], # starting point
   1,             # index of parameter
   f,             # profile function
-  :LIN_EXTRAPOL; # method
+  :LIN_EXTRAPOL; # :QUADR_EXTRAPOL or :CICO_ONE_PASS
   loss_crit = 9. # likelihood confidence level
   )
 #

@@ -7,6 +7,10 @@
 [![GitHub license](https://img.shields.io/github/license/insysbio/CICOBase.jl.svg)](https://github.com/insysbio/CICOBase.jl/blob/master/LICENSE)
 [![DOI:10.1371/journal.pcbi.1008495](https://zenodo.org/badge/DOI/10.1371/journal.pcbi.1008495.svg)](https://doi.org/10.1371/journal.pcbi.1008495)
 
+> **Repository rename notice**  
+> Up to Junuary 2025 this package was published as **LikelihoodProfiler.jl** at <https://github.com/insysbio/LikelihoodProfiler.jl>.  
+> The codebase was then split: the low-level computational core was renamed **CICOBase.jl** (this repo), while the original URL now hosts a new, higher-level package—**LikelihoodProfiler.jl** (v1)—that wraps CICOBase and adds extra identifiability-analysis methods.
+
 **CICOBase** is a [Julia language](https://julialang.org/downloads/) package for [identifiability analysis](https://en.wikipedia.org/wiki/Identifiability_analysis) and confidence intervals estimation.
 
 See [documentation](https://insysbio.github.io/CICOBase.jl/latest/).
@@ -45,7 +49,7 @@ res_1 = get_interval(
   [3., 2., 2.1], # starting point
   1,             # parameter component to analyze
   f,             # profile function
-  :LIN_EXTRAPOL; # method
+  :LIN_EXTRAPOL; # :QUADR_EXTRAPOL or :CICO_ONE_PASS
   loss_crit = 9. # critical level of loss function
   )
 #
