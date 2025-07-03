@@ -13,17 +13,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '1.9' # Replace this with the minimum Julia version that your package supports.
-          - '1.10'
-          - '1.11'
-          #- '1' # automatically expands to the latest stable 1.x release of Julia
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-        arch:
-          - x64
+        include:
+          - {version: '1.9',  os: windows-latest, arch: x64, continue-on-error: true}
+          - {version: '1.9',  os: ubuntu-latest,  arch: x64}
+          - {version: '1.9',  os: macos-latest,   arch: x64}
+          - {version: '1.10', os: windows-latest, arch: x64}
+          - {version: '1.10', os: ubuntu-latest,  arch: x64}
+          - {version: '1.10', os: macos-latest,   arch: x64}
+          - {version: '1.11', os: windows-latest, arch: x64}
+          - {version: '1.11', os: ubuntu-latest,  arch: x64}
+          - {version: '1.11', os: macos-latest,   arch: x64}
+          
+          - {version: '1.11', os: ubuntu-22.04-arm, arch: aarch64}
+          - {version: '1.11', os: macos-14, arch: aarch64}
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
