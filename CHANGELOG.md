@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.5.4
+
+- fix bug in `update_profile_points` when `loss_tol` is not set
+- fix bug in `plot` when `loss_crit` are default
+- remove support of julia < 1.9
+- minor docs fixes
+
 ## 0.5.3
 
 - `profile` function removed from public API (export)
