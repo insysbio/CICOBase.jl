@@ -12,6 +12,11 @@ Four functions are exported from this module for public use:
 """
 module CICOBase
 
+# default values
+const DEFAULT_LOCAL_ALG = :LN_NELDERMEAD
+const DEFAUL_THETA_BOUNDS_ITEM = (-Inf, Inf)
+const DEFAULT_LOSS_TOL = 0.
+
 using NLopt, ForwardDiff
 using Calculus
 using LinearAlgebra

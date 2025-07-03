@@ -9,7 +9,7 @@
             scale
             ),
         scan_tol::union{Float64,Nothing} = nothing,
-        loss_tol::Float64 = 1e-3,
+        loss_tol::Float64 = 0.,
         local_alg::Symbol = :LN_NELDERMEAD,
         silent::Bool = false,
         max_iter::Int = 10^5,
@@ -47,12 +47,12 @@ function get_optimal(
 
     scale::Vector{Symbol} = fill(:direct, length(theta_init)),
     theta_bounds::Vector{Tuple{Float64,Float64}} = unscaling.(
-        fill((-Inf, Inf), length(theta_init)),
+        fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
         scale
         ),
     scan_tol::Union{Float64,Nothing} = nothing,
-    loss_tol::Float64 = 0.,
-    local_alg::Symbol = :LN_NELDERMEAD,
+    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     silent::Bool = false,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY

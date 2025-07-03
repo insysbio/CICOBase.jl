@@ -5,17 +5,15 @@ function get_right_endpoint(
     loss_func::Function, # lambda(theta) - labmbda_min - delta_lambda
     method::Val{:QUADR_EXTRAPOL}; # function works only for method QUADR_EXTRAPOL
 
-    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(
-        (-Inf, Inf), length(theta_init)
-        ),
+    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
-    loss_tol::Float64 = 0., # 1e-3,
+    loss_tol::Float64 = DEFAULT_LOSS_TOL,
     # method args
     scan_hini = 1.,
     scan_hmax = Inf,
     # local alg args
-    local_alg::Symbol = :LN_NELDERMEAD,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     max_iter::Int = 10^5,
     kwargs... # options for local fitter
     )

@@ -6,7 +6,7 @@ abstract type AbstractIntervalInput end
         theta_num::Int              # number of the parameter for identifiability analysis
         loss_func::Function         # loss function
         method::Symbol
-        options::Any
+        options::Dict{Symbol, Any}
     end
 
 Structure storing input data for parameter identification
@@ -51,6 +51,7 @@ end
         loss_func::Function,
         method::Symbol;
 
+        loss_crit::Float64 = 0.,
         scale::Vector{Symbol} = fill(:direct, length(theta_init)),
         scan_bounds::Tuple{Float64,Float64} = unscaling.(
             (-9.0, 9.0),
@@ -70,6 +71,7 @@ Computes confidence interval for single component `theta_num` of parameter vecto
 - `method`: computational method to estimate confidence interval's endpoint. Currently the following methods are implemented: `:CICO_ONE_PASS`, `:LIN_EXTRAPOL`, `:QUADR_EXTRAPOL`.
 
 ## Keyword arguments
+- `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.
 - `scale`: vector of scale transformations for each parameters' component. Possible values: `:direct` (`:lin`), `:log`, `:logit`. This option can speed up the optimization, especially for wide `theta_bounds`. The default value is `:direct` (no transformation) for all parameters.
 - `scan_bounds`: scan bounds tuple for `theta_num` parameter. Should be within the `theta_bounds` for `theta_num` parameter. Default is `(-9.,9.)` for `:direct` scales and `(1e-9, 1e+9)` for `:log`.
 - `kwargs...`: the additional arguments passed to [`get_endpoint`](@ref)
@@ -80,6 +82,7 @@ function get_interval(
     loss_func::Function,
     method::Symbol;
 
+    loss_crit::Float64 = 0.,
     scale::Vector{Symbol} = fill(:direct, length(theta_init)),
     scan_bounds::Tuple{Float64,Float64} = unscaling.(
         (-9.0, 9.0),
@@ -95,6 +98,7 @@ function get_interval(
         method,
         [:left,:right][i]; # method
 
+        loss_crit,
         scale,
         scan_bound = scan_bounds[i],
         kwargs... # options for local fitter
@@ -105,7 +109,12 @@ function get_interval(
         theta_num,
         loss_func,
         method,
-        Dict(:scale=>scale, :scan_bounds=>scan_bounds, kwargs...) # ? NamedTuple
+        Dict(
+            :loss_crit=>loss_crit,
+            :scale=>scale, 
+            :scan_bounds=>scan_bounds,
+            kwargs...
+            ) # ? NamedTuple
         )
 
     ParamInterval(
@@ -124,20 +133,12 @@ end
         loss_func::Function,
         method::Symbol;
 
-        loss_crit::Float64 = 0.0,
+        loss_crit::Float64 = 0.,
         scale::Vector{Symbol} = fill(:direct, length(theta_init)),
-        theta_bounds::Vector{Tuple{Float64,Float64}} = unscaling.(
-            fill((-Inf, Inf), length(theta_init)),
-            scale
-            ),
         scan_bounds::Tuple{Float64,Float64} = unscaling.(
             (-9.0, 9.0),
             :direct
             ),
-        scan_tol::Float64 = 1e-3,
-        loss_tol::Float64 = 0.,
-        local_alg::Symbol = :LN_NELDERMEAD,
-        autodiff::Bool = true,
         kwargs...
         )
 Computes confidence interval for function of parameters `scan_func`.
@@ -152,6 +153,7 @@ Computes confidence interval for function of parameters `scan_func`.
 - `method`: computational method to estimate confidence interval's endpoint. Currently supports only `:CICO_ONE_PASS` method.
 
 ## Keyword arguments
+- `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.
 - `scale`: vector of scale transformations for each parameters' component. Possible values: `:direct` (`:lin`), `:log`, `:logit`. This option can speed up the optimization, especially for wide `theta_bounds`. The default value is `:direct` (no transformation) for all parameters.
 - `scan_bounds`: scan bounds tuple for `scan_func` values. Default is `(1e-9, 1e9)` .
 - `kwargs...`: the additional arguments passed to [`get_endpoint`](@ref)
@@ -162,6 +164,7 @@ function get_interval(
     loss_func::Function,
     method::Symbol;
 
+    loss_crit::Float64 = 0.,
     scale::Vector{Symbol} = fill(:direct, length(theta_init)),
     scan_bounds::Tuple{Float64,Float64} = unscaling.(
         (-9.0, 9.0),
@@ -177,6 +180,7 @@ function get_interval(
         method,
         [:left,:right][i]; # method
 
+        loss_crit,
         scale,
         scan_bound = scan_bounds[i],
         kwargs...
@@ -187,7 +191,12 @@ function get_interval(
         scan_func,
         loss_func,
         method,
-        Dict(:scale=>scale, :scan_bounds=>scan_bounds, kwargs...) # ? NamedTuple
+        Dict(
+            :loss_crit=>loss_crit, 
+            :scale=>scale, 
+            :scan_bounds=>scan_bounds, 
+            kwargs...
+            )
         )
 
     ParamInterval(

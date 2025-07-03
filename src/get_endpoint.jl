@@ -137,7 +137,7 @@ function get_endpoint(
     loss_crit::Float64 = 0.0,
     scale::Vector{Symbol} = fill(:direct, length(theta_init)), # :direct, :lin, :log, :logit
     theta_bounds::Vector{Tuple{Float64,Float64}} = unscaling.(
-        fill((-Inf, Inf), length(theta_init)),
+        fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
         scale
         ),
     scan_bound::Float64 = unscaling(
@@ -145,8 +145,8 @@ function get_endpoint(
         scale[theta_num]
         ),
     scan_tol::Float64 = 1e-3,
-    loss_tol::Float64 = 0.,
-    local_alg::Symbol = :LN_NELDERMEAD,
+    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY,
     silent::Bool = false,
@@ -364,13 +364,13 @@ function get_endpoint(
     # :direct, :lin, :log, :logit
     scale::Vector{Symbol} = fill(:direct, length(theta_init)),
     theta_bounds::Vector{Tuple{Float64,Float64}} = unscaling.(
-        fill((-Inf, Inf), length(theta_init)),
+        fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
         scale
         ),
     scan_bound::Float64 = (direction==:left) ? -1e9 : 1e9, # log scan bound is not implemented
     scan_tol::Float64 = 1e-3,
-    loss_tol::Float64 = 0.,
-    local_alg::Symbol = :LN_NELDERMEAD,
+    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     max_iter::Int = 10^5,
     scan_grad::Union{Function, Symbol} = :EMPTY,
     loss_grad::Union{Function, Symbol} = :EMPTY,

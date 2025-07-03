@@ -5,9 +5,9 @@ function _profile(
     loss_func::Function;
 
     skip_optim::Bool = false,
-    theta_bounds::Vector{Tuple{Float64,Float64}} = fill((-Inf, Inf), length(theta_init)),
+    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     # fit alg args
-    local_alg::Symbol = :LN_NELDERMEAD,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     ftol_abs::Float64 = 1e-3,
     maxeval::Int = 10^5,
     kwargs...
@@ -128,11 +128,11 @@ function profile(
     skip_optim::Bool = false,
     scale::Vector{Symbol} = fill(:direct, length(theta_init)),
     theta_bounds::Vector{Tuple{Float64,Float64}} = unscaling.(
-        fill((-Inf, Inf), length(theta_init)),
+        fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
         scale
         ),
     # fit alg args
-    local_alg::Symbol = :LN_NELDERMEAD,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     ftol_abs::Float64 = 1e-3,
     maxeval::Int = 10^5,
     kwargs...

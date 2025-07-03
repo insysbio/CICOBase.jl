@@ -117,15 +117,13 @@ function update_profile_points!(
             ep_start = pi.input.theta_init[pi.input.theta_num]
             update_profile_endpoint!(
                 ep.profilePoints,
-                ep.direction == :left ?
-                    (ep.value, ep_start) :
-                    (ep_start, ep.value),
+                ep.direction == :left ? (ep.value, ep_start) : (ep_start, ep.value),
                 pi.input.theta_init,
                 pi.input.theta_num,
                 pi.input.loss_func,
-                pi.input.options[:local_alg],
-                pi.input.options[:theta_bounds],
-                pi.input.options[:loss_tol];
+                get(pi.input.options, :local_alg, DEFAULT_LOCAL_ALG),
+                get(pi.input.options, :theta_bounds, fill(DEFAUL_THETA_BOUNDS_ITEM, length(pi.input.theta_init))),
+                get(pi.input.options, :loss_tol, DEFAULT_LOSS_TOL);
                 max_recursions
             )
         else

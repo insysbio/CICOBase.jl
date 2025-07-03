@@ -5,17 +5,15 @@ function get_right_endpoint(
     loss_func::Function, # lambda(theta) - labmbda_min - delta_lambda
     method::Val{:CICO_ONE_PASS}; # function works only for method ONE_PASS;
 
-    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(
-        (-Inf, Inf), length(theta_init)
-        ),
+    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
     scan_rtol::Float64 = 0.,
-    loss_tol::Float64 = 0., # we have no idea how to implement loss_tol
+    loss_tol::Float64 = DEFAULT_LOSS_TOL, # we have no idea how to implement loss_tol
     # better results for LN_NELDERMEAD, :LD_MMA, :LD_SLSQP, :LD_CCSAQ
     # worse results for :LN_COBYLA, :LN_PRAXIS
     # errors for :LN_BOBYQA, :LN_SBPLX, :LN_NEWUOA
-    local_alg::Symbol = :LN_NELDERMEAD,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     # options for local fitter :max_iter
     max_iter::Int = 10^5,
     scan_grad::Union{Function, Symbol} = :EMPTY,
@@ -142,14 +140,12 @@ function get_right_endpoint(
     loss_func::Function, # lambda(theta) - labmbda_min - delta_lambda
     method::Val{:CICO_ONE_PASS}; # function works only for method ONE_PASS;
 
-    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(
-        (-Inf, Inf), length(theta_init)
-        ),
+    theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
     scan_rtol::Float64 = 0.,
-    loss_tol::Float64 = 0.,
-    local_alg::Symbol = :LN_NELDERMEAD,
+    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    local_alg::Symbol = DEFAULT_LOCAL_ALG,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY,
     #kwargs...

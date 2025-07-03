@@ -22,4 +22,10 @@
     @test res0[2].result[2].status == :BORDER_FOUND_BY_SCAN_TOL
     @test res0[3].result[1].status == :SCAN_BOUND_REACHED
     @test res0[3].result[2].status == :SCAN_BOUND_REACHED
+
+    options = res0[1].input.options
+    @test options[:loss_crit] == 9.0
+    @test options[:scan_bounds] == (-9.0, 9.0)
+    @test options[:scale] == [:direct, :direct, :direct]
+    @test options[:silent] == true
 end
