@@ -162,7 +162,7 @@ function get_endpoint(
         throw(ArgumentError("theta_init is outside theta_bound: $(findall(theta_init_outside_theta_bounds))"))
     end
     # scan_bound should be within theta_bounds
-    !(theta_bounds[theta_num][1] < scan_bound < theta_bounds[theta_num][2]) &&
+    !(theta_bounds[theta_num][1] <= scan_bound <= theta_bounds[theta_num][2]) &&
         throw(ArgumentError("scan_bound are outside of the theta_bounds $(theta_bounds[theta_num])"))
     # theta_init should be within scan_bound
     if (theta_init[theta_num] >= scan_bound && !isLeft) || (theta_init[theta_num] <= scan_bound && isLeft)
