@@ -40,7 +40,7 @@ function get_right_endpoint(
     function constraints_func(x, g) # testing grad methods    
         loss_value = loss_func(x)
         
-        if (loss_value < 0.) && (scan_func(x) > scan_bound)
+        if (loss_value < 0.) && (scan_func(x) >= scan_bound)
             throw(NLopt.ForcedStop()) # stop optimization because of scan_bound reached
         elseif length(g) > 0
           if isa(loss_grad, Function)
