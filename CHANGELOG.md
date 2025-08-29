@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.6.0
+
+- allow equal `scan_bounds` and `theta_bounds`
+- rm Julia 1.9 from tests
+- arm added to CI
+
 ## 0.5.4
 
 - fix bug in `update_profile_points` when `loss_tol` is not set
