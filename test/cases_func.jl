@@ -24,6 +24,7 @@ function test_alg_interval(
   alg::NamedTuple,
   func_dict::AbstractDict = test_funcs;
   bounds::Tuple{Float64,Float64} = (-Inf,Inf),
+  scan_tol=1e-8,
   tol::Float64 = 1e-2,
   kwargs...
 )
@@ -38,7 +39,7 @@ function test_alg_interval(
             f.func,
             :CICO_ONE_PASS;
             theta_bounds=fill(bounds,length(f.x1)),
-            scan_tol=1e-8,
+            scan_tol=scan_tol,
             local_alg = alg.algorithm,
             loss_crit = f.loss_crit,
             silent = true,
