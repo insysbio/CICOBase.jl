@@ -19,7 +19,7 @@ RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [compat]
 Calculus = "0.5.1"
-ForwardDiff = "0.10"
+ForwardDiff = "0.10, 1.0.1"
 NLopt = "1.0.3"
 NLopt_jll = "=2.8.0"
 PlotUtils = "1.4"

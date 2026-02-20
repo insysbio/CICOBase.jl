@@ -215,7 +215,9 @@ function get_endpoint(
         else
             unscaling(supreme_gd, scale[theta_num])
         end
-        ProgressMeter.update!(prog, counter, spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; showvalues = [(:supreme,round(supreme; sigdigits=4))])
+        if !isa(supreme, ForwardDiff.Dual) 
+            ProgressMeter.update!(prog, counter, spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; showvalues = [(:supreme,round(supreme; sigdigits=4))])
+        end 
 
         return loss_norm
     end
@@ -441,8 +443,9 @@ function get_endpoint(
         else
             round(supreme_gd; sigdigits=4)
         end
-        ProgressMeter.update!(prog, counter; showvalues = [(:supreme,supreme)])
-
+        if !isa(supreme, ForwardDiff.Dual)
+            ProgressMeter.update!(prog, counter; showvalues = [(:supreme,supreme)])
+        end
         return loss_value
     end
     theta_bounds_gd = scaling.(theta_bounds, scale)
