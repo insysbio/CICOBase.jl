@@ -205,7 +205,7 @@ function get_endpoint(
         counter += 1
         # update supreme ?
         update_supreme = (loss_norm < 0.) &&
-            (typeof(supreme_gd)==Nothing || (theta_gd[theta_num] > supreme_gd))
+            (typeof(supreme_gd)==Nothing || (theta_gd[theta_num] > supreme_gd)) && !isa(theta_gd[theta_num], ForwardDiff.Dual)
         if update_supreme
             supreme_gd = theta_gd[theta_num]
         end
