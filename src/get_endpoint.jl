@@ -1,3 +1,11 @@
+function get_value(x::Real)
+    if isa(x, ForwardDiff.Dual)
+        return x.value
+    else
+        return x
+    end
+end
+
 """
     logit10(x::Real)
 Function transforming interval [0,1] to [-Inf, Inf] using logit transformation.
@@ -207,7 +215,7 @@ function get_endpoint(
         update_supreme = (loss_norm < 0.) &&
             (typeof(supreme_gd)==Nothing || (theta_gd[theta_num] > supreme_gd))
         if update_supreme
-            supreme_gd = theta_gd[theta_num]
+            supreme_gd = theta_gd[theta_num] |> get_value
         end
         # display current
         supreme = if (isLeft && typeof(supreme_gd)!==Nothing)
@@ -215,9 +223,8 @@ function get_endpoint(
         else
             unscaling(supreme_gd, scale[theta_num])
         end
-        if !isa(supreme, ForwardDiff.Dual) 
-            ProgressMeter.update!(prog, counter, spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; showvalues = [(:supreme,round(supreme; sigdigits=4))])
-        end 
+
+        ProgressMeter.update!(prog, counter, spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; showvalues = [(:supreme, round(supreme; sigdigits=4))])
 
         return loss_norm
     end
@@ -431,10 +438,9 @@ function get_endpoint(
         #println("$loss_value => $supreme_gd")
         should_update = (loss_value < 0.) &&
             !isa(scan_val_gd, Nothing) &&
-            (isa(supreme_gd, Nothing) || (scan_val_gd > supreme_gd)) &&
-            !isa(scan_val_gd, ForwardDiff.Dual)
+            (isa(supreme_gd, Nothing) || (scan_val_gd > supreme_gd))
         if should_update
-            supreme_gd = scan_val_gd
+            supreme_gd = scan_val_gd |> get_value
         end
         supreme = if isa(supreme_gd, Nothing)
             "-"
@@ -443,9 +449,9 @@ function get_endpoint(
         else
             round(supreme_gd; sigdigits=4)
         end
-        if !isa(supreme, ForwardDiff.Dual)
-            ProgressMeter.update!(prog, counter; showvalues = [(:supreme,supreme)])
-        end
+        
+        ProgressMeter.update!(prog, counter; showvalues = [(:supreme, supreme)])
+
         return loss_value
     end
     theta_bounds_gd = scaling.(theta_bounds, scale)

@@ -95,9 +95,9 @@ function get_optimal(
         loss_value = loss_func(theta)
 
         counter += 1
-        if (typeof(supreme) == Nothing || loss_value < supreme) && !isa(loss_value, ForwardDiff.Dual)
-            supreme = loss_value
-            ProgressMeter.update!(prog, counter, spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; showvalues = [(:supreme,round(supreme; sigdigits=4))])
+        if (typeof(supreme) == Nothing || loss_value < supreme)
+            supreme = loss_value |> get_value
+            ProgressMeter.update!(prog, counter, spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"; showvalues = [(:supreme, round(supreme; sigdigits=4))])
         end
         
         return loss_value
