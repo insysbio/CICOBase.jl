@@ -169,6 +169,8 @@ function update_profile_endpoint!(
             lower_bounds!(opt,lb)
             upper_bounds!(opt,ub)
             ftol_abs!(opt,tol)
+            
+            NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
 
             (loss,minx,ret) = optimize(opt,params)
 

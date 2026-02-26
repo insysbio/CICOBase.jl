@@ -143,6 +143,7 @@ function get_optimal(
     scan_tol !== nothing && (opt.xtol_abs = scan_tol)
     opt.min_objective = loss_func_g
     opt.maxeval = max_iter
+    NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
     
     # initial step for optimization
     theta_step_auto = initial_step(opt, theta_init_g) # for testing

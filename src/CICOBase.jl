@@ -19,9 +19,12 @@ const DEFAULT_LOSS_TOL = 0.
 
 # XXX: magic numbers
 # We know that magic numbers are bad but NLopt not always provides
-# stable solution for all collection of algorithms. Some methods requires
-# specific numbers of tolerances which where found by experiments.
+# stable solution with default optimization parameters.
+
+# LBFGS, TNEWTON_PRECOND_RESTART, TNEWTON_PRECOND, TNEWTON, VAR2, VAR1
+# see https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/
 const MAGIC_TOLG = 1e-3
+# LN_AUGLAG
 const MAGIC_CONSTRAINT_TOL = 1e-3
 
 using NLopt, ForwardDiff

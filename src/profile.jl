@@ -40,6 +40,7 @@ function _profile(
         # set optimizer
         opt = Opt(local_alg, theta_length - 1)
         ftol_abs!(opt, ftol_abs)
+        NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
         #xtol_abs!(opt, 0.)
         lower_bounds!(opt, lb)
         upper_bounds!(opt, ub)

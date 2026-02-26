@@ -36,9 +36,7 @@ function get_right_endpoint(
     local_opt = Opt(local_alg, n_theta)
     ftol_abs!(local_opt, scan_tol)
     ftol_rel!(local_opt, scan_rtol)
-    # for gradient methods do not stop gradient tolerance
-    # LBFGS, TNEWTON_PRECOND_RESTART, TNEWTON_PRECOND, TNEWTON, VAR2, VAR1
-    # see https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/
+
     NLopt.nlopt_set_param(local_opt, "tolg", MAGIC_TOLG) # default 1e-8
 
     function constraints_func(x, g) # testing grad methods
