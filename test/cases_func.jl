@@ -19,12 +19,16 @@ f_5p_3im(x) = 5.0 + (x[1]-3.0)^2 + (exp(x[2])-1.0)^2 + (x[3]/x[4]-4.0)^2 + 0.0*x
 
 f_3p_im(x) = 5.0 + (x[1]-3.0)^2 + (exp(x[2])-1.0)^2 + 0.0*x[3] # [3.0, 0., missing]
 
+# XXX: Magic numbers for `test_alg_interval`
+const SCAN_TOL = 1e-8 # a priory tolerance for interval scanning
+const TOL = 1e-5 # a posteriori tolerance for interval scanning, XXX: must be equal to SCAN_TOL, but it is not
+
 # test each algorithm on get_interval()
 function test_alg_interval(
   alg::NamedTuple,
   func_dict::AbstractDict = test_funcs;
-  bounds::Tuple{Float64,Float64} = (-Inf,Inf),
-  tol::Float64 = 1e-2,
+  bounds::Tuple{Float64,Float64} = (-Inf, Inf),
+  tol::Float64 = TOL,
   kwargs...
 )
   @testset "get_interval() for $(alg.algorithm)" begin
@@ -38,7 +42,7 @@ function test_alg_interval(
             f.func,
             :CICO_ONE_PASS;
             theta_bounds=fill(bounds,length(f.x1)),
-            scan_tol=1e-8,
+            scan_tol = SCAN_TOL,
             local_alg = alg.algorithm,
             loss_crit = f.loss_crit,
             silent = true,
@@ -68,8 +72,8 @@ function test_alg_optimal(
   alg::NamedTuple;
   bounds::Tuple{Float64,Float64} = (-Inf,Inf),
   scale::Symbol = :direct,
-  scan_tol::Union{Float64,Nothing} = nothing,
-  loss_tol::Float64 = 0.,
+  scan_tol::Union{Float64,Nothing} = nothing, # updates in specific cases
+  loss_tol::Float64 = 0., # updates in specific cases
 )
   @testset "get_optimal() for $(alg.algorithm)" begin
     for (f_name, f) in test_funcs
