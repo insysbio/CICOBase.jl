@@ -17,6 +17,13 @@ const DEFAULT_LOCAL_ALG = :LN_NELDERMEAD
 const DEFAUL_THETA_BOUNDS_ITEM = (-Inf, Inf)
 const DEFAULT_LOSS_TOL = 0.
 
+# XXX: magic numbers
+# We know that magic numbers are bad but NLopt not always provides
+# stable solution for all collection of algorithms. Some methods requires
+# specific numbers of tolerances which where found by experiments.
+const MAGIC_TOLG = 1e-3
+const MAGIC_CONSTRAINT_TOL = 1e-3
+
 using NLopt, ForwardDiff
 using Calculus
 using LinearAlgebra

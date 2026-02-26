@@ -31,7 +31,7 @@ function test_alg_interval(
   tol::Float64 = TOL,
   kwargs...
 )
-  @testset "get_interval() for $(alg.algorithm)" begin
+  @testset "get_interval() for $(alg.algorithm) and $(get(kwargs, :loss_grad, "-"))" begin
     for (f_name, f) in func_dict
       #println("Testing $f_name")
       @testset "Case $f_name" begin
