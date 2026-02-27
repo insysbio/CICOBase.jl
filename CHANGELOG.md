@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.6.1
+
+- Fixed a bug where `supreme` could be skipped when using `:AUTODIFF`.
+- Improved stability of gradient-based optimization by tuning `tolg`.
+- Added more test cases for gradient-based optimization.
+- Added compatibility with `NLopt_jll` >= `2.9.0`.
+- Added compatibility with `ForwardDiff` >= `1.0.1`.
+
 ## 0.6.0
 
 - allow equal `scan_bounds` and `theta_bounds`
