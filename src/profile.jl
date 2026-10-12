@@ -1,4 +1,6 @@
 
+# Internal routine: inputs, callback arguments, and results share the caller's
+# coordinates. No scale conversions are performed here.
 function _profile(
     theta_init::Vector{Float64},
     theta_num::Int,
@@ -23,7 +25,7 @@ function _profile(
 
     if skip_optim || theta_length == 1 # if profile == loss_func
         return (x::Float64; theta_init_i::Vector{Float64} = theta_init, maxeval::Int = maxeval) -> begin
-            theta_full = copy(theta_init)
+            theta_full = copy(theta_init_i)
             splice!(theta_full, theta_num, x)
             loss = loss_func(theta_full)
 
@@ -103,10 +105,14 @@ end
         maxeval::Int = 10^5,
         kwargs... # currently not used
     )
-Generates the profile function based on `loss_func`. Used internally in methods `:LIN_EXTRAPOL`, `:QUADR_EXTRAPOL`.
+Generates a profile function based on `loss_func`. Extrapolation methods use `_profile` directly.
 
 ## Return
-Returns profile function for selected parameter.
+Returns a profile function for the selected parameter. Constructor inputs and
+`loss_func` arguments use original units. Returned `ProfilePoint.params` and
+the optional `theta_init_i` use internal coordinates: the scanned component is
+direct, and the others follow `scale`. A previous point's `params` can be reused
+as `theta_init_i`.
 
 # Arguments
 - `theta_init`: starting values of parameter vector ``\\theta``. 
@@ -115,7 +121,7 @@ Returns profile function for selected parameter.
 
 ## Keyword arguments
 - `skip_optim` : set `true` if you need marginal profile, i.e. profile without optimization. Default is `false`.
-- `scale` : 
+- `scale`: per-parameter internal transformations; the scanned component remains direct.
 - `theta_bounds`: vector of tuple `(lower_bound, upper_bound)` for each parameter. Bounds define the ranges for possible parameter values. Default bounds are `(-Inf,Inf)`.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package.
 - `ftol_abs` : absolute tolerance criterion for profile function.

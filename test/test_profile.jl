@@ -92,3 +92,41 @@ end
     @test !isempty(finite.profilePoints)
     @test all(pp -> isapprox(pp.loss, finite_loss(pp.params)), finite.profilePoints)
 end
+
+@testset "skipped profile uses supplied parameters" begin
+    initial = [1.0, 2.0, 3.0]
+    warm = [10.0, 20.0, 30.0]
+    prof = CICOBase._profile(initial, 2, p -> sum(abs2, p); skip_optim = true)
+    pp = prof(4.0; theta_init_i = warm)
+    @test pp.value == 4.0
+    @test pp.params == [10.0, 4.0, 30.0]
+    @test pp.loss == 1016.0
+    @test pp.ret == :OPTIMIZATION_SKIPPED
+    @test pp.counter == 1
+    @test warm == [10.0, 20.0, 30.0]
+    @test initial == [1.0, 2.0, 3.0]
+    @test prof(4.0).params == [1.0, 4.0, 3.0]
+
+    # profile accepts warm starts and returns params in internal coordinates.
+    # The scanned component remains direct; the loss callback receives original values.
+    seen = Vector{Float64}[]
+    loss(p) = begin
+        push!(seen, copy(p))
+        sum(abs2, p)
+    end
+    scale = [:log, :log, :logit]
+    scale_mod = [:log, :direct, :logit]
+    prof_scaled = CICOBase.profile([2.0, 10.0, 0.4], 2, loss; scale, skip_optim = true)
+    warm_scaled = scaling.([20.0, 30.0, 0.6], scale_mod)
+    before = copy(warm_scaled)
+    pp_scaled = prof_scaled(15.0; theta_init_i = warm_scaled)
+    @test isapprox(pp_scaled.params, scaling.([20.0, 15.0, 0.6], scale_mod))
+    @test isapprox(pp_scaled.loss, 625.36)
+    @test isapprox(only(seen), [20.0, 15.0, 0.6])
+    @test pp_scaled.counter == 1
+    @test warm_scaled == before
+
+    default = prof_scaled(15.0)
+    @test isapprox(default.params, scaling.([2.0, 15.0, 0.4], scale_mod))
+    @test isapprox(seen[end], [2.0, 15.0, 0.4])
+end
