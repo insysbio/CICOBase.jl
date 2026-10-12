@@ -133,7 +133,9 @@ function get_optimal(
         end
     elseif loss_grad == :FINITE
         function(theta_g, grad_g) # gradient is directly declared
-            Calculus.finite_difference!(loss_func_rescaled, theta_g, grad_g, :central)
+            if length(grad_g) > 0
+                Calculus.finite_difference!(loss_func_rescaled, theta_g, grad_g, :central)
+            end
             return loss_func_rescaled(theta_g)
         end
     end

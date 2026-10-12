@@ -256,3 +256,19 @@ end
     @test isapprox(res3.loss, 5., atol=1e-3)
     @test res3.ret == :FTOL_REACHED
 end
+
+@testset "FINITE handles objective-only requests" begin
+    target = [3.0, 0.4]
+    loss(p) = sum(abs2, p .- target)
+    for scale in ([:direct, :direct], [:log, :logit]),
+        local_alg in (:LD_SLSQP, :LN_NELDERMEAD)
+        pp = get_optimal([4.0, 0.25], loss;
+            scale, local_alg, loss_grad = :FINITE,
+            loss_tol = 1e-10, scan_tol = 1e-8,
+            max_iter = 1000, silent = true
+        )
+        @test isapprox(pp.params, target; atol = 1e-3)
+        @test pp.loss < 1e-6
+        @test pp.loss == loss(pp.params)
+    end
+end
