@@ -112,6 +112,9 @@ function update_profile_points!(
     pi::ParamInterval;
     max_recursions::Int = 2
 )
+    scale = get(pi.input.options, :scale, fill(:direct, length(pi.input.theta_init)))
+    default_bounds = [s == :log ? (0.0, Inf) :
+                      s == :logit ? (0.0, 1.0) : DEFAUL_THETA_BOUNDS_ITEM for s in scale]
     for ep in pi.result
         if ep.status != :SCAN_BOUND_REACHED
             ep_start = pi.input.theta_init[pi.input.theta_num]
@@ -122,9 +125,9 @@ function update_profile_points!(
                 pi.input.theta_num,
                 pi.input.loss_func,
                 get(pi.input.options, :local_alg, DEFAULT_LOCAL_ALG),
-                get(pi.input.options, :theta_bounds, fill(DEFAUL_THETA_BOUNDS_ITEM, length(pi.input.theta_init))),
+                get(pi.input.options, :theta_bounds, default_bounds),
                 get(pi.input.options, :loss_tol, DEFAULT_LOSS_TOL);
-                max_recursions
+                max_recursions, scale
             )
         else
             @info "$(string(ep.direction)) - a half-open interval"
@@ -143,9 +146,13 @@ function update_profile_endpoint!(
     fit_alg::Symbol,
     bounds::Vector{Tuple{Float64,Float64}},
     tol::Float64;
-    max_recursions::Int = 2
+    max_recursions::Int = 2,
+    scale::Vector{Symbol} = fill(:direct, length(init_params))
 )
-    params = copy(init_params)
+    scale_mod = copy(scale)
+    scale_mod[id] = :direct
+    params = scaling.(init_params, scale_mod)
+    bounds = scaling.(bounds, scale_mod)
 
     # bounds
     lb = minimum.(bounds)
@@ -157,7 +164,7 @@ function update_profile_endpoint!(
             return loss_func([x])
         else
             # ! params_intervals_one_side can be used here
-            fit_params_func = (p,g) -> loss_func(p)
+            fit_params_func = (p,g) -> loss_func(unscaling.(p, scale_mod))
             opt = Opt(fit_alg, length(params))
 
             params[id] = x
@@ -174,6 +181,7 @@ function update_profile_endpoint!(
 
             (loss,minx,ret) = optimize(opt,params)
 
+            minx = unscaling.(minx, scale_mod)
             loss = loss_func(minx)
             push!(pps_arr, ProfilePoint(x, loss, minx, ret, nothing))
             return loss
