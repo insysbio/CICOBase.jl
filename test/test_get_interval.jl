@@ -29,3 +29,23 @@
     @test options[:scale] == [:direct, :direct, :direct]
     @test options[:silent] == true
 end
+
+@testset "function scan default bounds" begin
+    center = [2.0, 0.5]
+    loss(p) = sum(abs2, p .- center)
+    scan(p) = p[1] - 4 * p[2]
+    radius = sqrt(0.17)
+    for scale in ([:direct, :direct], [:log, :logit])
+        pi = get_interval(center, scan, loss, :CICO_ONE_PASS;
+            scale, loss_crit = 0.01, local_alg = :LD_SLSQP,
+            scan_tol = 1e-7, scan_grad = :AUTODIFF,
+            loss_grad = :AUTODIFF, silent = true
+        )
+        @test pi.input.options[:scan_bounds] == (-9.0, 9.0)
+        @test isapprox(pi.result[1].value, -radius; atol = 1e-3)
+        @test isapprox(pi.result[2].value, radius; atol = 1e-3)
+        @test all(ep -> ep.status == :BORDER_FOUND_BY_SCAN_TOL, pi.result)
+        @test all(pp -> isapprox(pp.value, scan(pp.params); atol = 1e-9),
+            [pp for ep in pi.result for pp in ep.profilePoints])
+    end
+end

@@ -155,7 +155,7 @@ Computes confidence interval for function of parameters `scan_func`.
 ## Keyword arguments
 - `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.
 - `scale`: vector of scale transformations for each parameters' component. Possible values: `:direct` (`:lin`), `:log`, `:logit`. This option can speed up the optimization, especially for wide `theta_bounds`. The default value is `:direct` (no transformation) for all parameters.
-- `scan_bounds`: scan bounds tuple for `scan_func` values. Default is `(1e-9, 1e9)` .
+- `scan_bounds`: scan bounds tuple for `scan_func` values in their original units. Default is `(-9.0, 9.0)`, independent of parameter scaling.
 - `kwargs...`: the additional arguments passed to [`get_endpoint`](@ref)
 """
 function get_interval(
@@ -168,7 +168,7 @@ function get_interval(
     scale::Vector{Symbol} = fill(:direct, length(theta_init)),
     scan_bounds::Tuple{Float64,Float64} = unscaling.(
         (-9.0, 9.0),
-        scale[theta_num]
+        :direct
         ),
     kwargs... # other options for get_right_endpoint
 )
