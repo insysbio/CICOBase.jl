@@ -10,6 +10,8 @@ NLopt.srand(12345)
 include("./cases_func.jl")
 methods_list = [:CICO_ONE_PASS, :LIN_EXTRAPOL, :QUADR_EXTRAPOL]
 
+include("test_scaling.jl")
+
 println("Starting tests for get_interval")
 @testset "get_interval" begin include("test_get_interval.jl") end
 

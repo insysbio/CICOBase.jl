@@ -20,7 +20,12 @@ Function transforming interval [-Inf, Inf] to [0,1] using logistic transformatio
 Inverse function for [`logit10`](@ref).
 """
 function logistic10(x::Real)
-    exp10(x) / (exp10(x) + 1.0)
+    if x >= 0
+        return inv(1 + exp10(-x))
+    else
+        y = exp10(x)
+        return y / (1 + y)
+    end
 end
 
 """
