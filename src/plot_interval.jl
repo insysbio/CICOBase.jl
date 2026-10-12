@@ -116,7 +116,7 @@ function update_profile_points!(
     default_bounds = [s == :log ? (0.0, Inf) :
                       s == :logit ? (0.0, 1.0) : DEFAUL_THETA_BOUNDS_ITEM for s in scale]
     for ep in pi.result
-        if ep.status != :SCAN_BOUND_REACHED
+        if ep.value !== nothing
             ep_start = pi.input.theta_init[pi.input.theta_num]
             update_profile_endpoint!(
                 ep.profilePoints,
@@ -130,7 +130,7 @@ function update_profile_points!(
                 max_recursions, scale
             )
         else
-            @info "$(string(ep.direction)) - a half-open interval"
+            @info "$(string(ep.direction)) - no finite endpoint ($(ep.status))"
         end
     end
     return nothing

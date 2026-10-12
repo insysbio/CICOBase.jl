@@ -59,3 +59,36 @@ end
         end
     end
 end
+
+@testset "update_profile_points! skips missing endpoints" begin
+    seed = ProfilePoint(0.0, 0.0, [0.0, 0.0], :FTOL_REACHED, 1)
+    for status in (:SCAN_BOUND_REACHED, :MAX_ITER_STOP, :LOSS_ERROR_STOP, :UNKNOWN_STOP)
+        calls = Ref(0)
+        loss(p) = begin
+            calls[] += 1
+            sum(abs2, p)
+        end
+        input = ParamIntervalInput([0.0, 0.0], 1, loss, :CICO_ONE_PASS, Dict{Symbol,Any}())
+        endpoints = (
+            EndPoint(nothing, [seed], status, :left, 1, nothing),
+            EndPoint(nothing, [seed], status, :right, 1, nothing)
+        )
+        pi = ParamInterval(input, 0.0, :CICO_ONE_PASS, endpoints)
+        @test update_profile_points!(pi; max_recursions = 0) === nothing
+        @test calls[] == 0
+        @test all(ep -> ep.profilePoints == [seed], pi.result)
+    end
+
+    # A missing endpoint must not prevent refinement of the other side.
+    finite_loss(p) = sum(abs2, p)
+    input = ParamIntervalInput(
+        [0.0, 0.0], 1, finite_loss, :LIN_EXTRAPOL, Dict{Symbol,Any}(:loss_tol => 1e-8)
+    )
+    missing = EndPoint(nothing, [seed], :MAX_ITER_STOP, :left, 1, nothing)
+    finite = EndPoint(1.0, ProfilePoint[], :BORDER_FOUND_BY_SCAN_TOL, :right, 1, 1.0)
+    pi = ParamInterval(input, 0.0, :LIN_EXTRAPOL, (missing, finite))
+    @test update_profile_points!(pi; max_recursions = 0) === nothing
+    @test missing.profilePoints == [seed]
+    @test !isempty(finite.profilePoints)
+    @test all(pp -> isapprox(pp.loss, finite_loss(pp.params)), finite.profilePoints)
+end
