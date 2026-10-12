@@ -482,6 +482,7 @@ function get_endpoint(
                 end
             end
 
+            if isLeft scan_grad_value_gd .*= -1 end
             return scan_grad_value_gd
         end
     else

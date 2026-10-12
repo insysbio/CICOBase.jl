@@ -300,3 +300,33 @@ end
     @test res0.status == :SCAN_BOUND_REACHED
     @test res0.counter < 1000
 end
+
+@testset "left and right function scans with user gradients" begin
+    for (scale, center, bounds) in (
+        ([:direct, :direct], [2.0, 2.0], [(-10.0, 10.0), (-10.0, 10.0)]),
+        ([:log, :direct], [2.0, 2.0], [(0.1, 10.0), (-10.0, 10.0)]),
+        ([:log, :logit], [2.0, 0.5], [(0.1, 10.0), (0.01, 0.99)])
+    )
+        loss(p) = sum(abs2, p .- center)
+        scan(p) = p[1] + 2 * p[2]
+        user_scan_grad(p) = [1.0, 2.0]
+        user_loss_grad(p) = 2 .* (p .- center)
+        for direction in (:left, :right)
+            expected = scan(center) + (direction == :left ? -1 : 1) * sqrt(0.05)
+            endpoints = [
+                get_endpoint(center, scan, loss, :CICO_ONE_PASS, direction;
+                    scale, theta_bounds = bounds, loss_crit = 0.01,
+                    local_alg = :LD_SLSQP, scan_tol = 1e-7, silent = true,
+                    scan_grad = grad == :function ? user_scan_grad : grad,
+                    loss_grad = user_loss_grad
+                ) for grad in (:AUTODIFF, :FINITE, :function)
+            ]
+            for ep in endpoints
+                @test ep.status == :BORDER_FOUND_BY_SCAN_TOL
+                @test isapprox(ep.value, expected; atol = 1e-3)
+            end
+            @test isapprox(endpoints[3].value, endpoints[1].value; atol = 1e-4)
+            @test isapprox(endpoints[3].value, endpoints[2].value; atol = 1e-4)
+        end
+    end
+end
