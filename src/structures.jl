@@ -32,7 +32,8 @@ end
 Structure storing one endpoint of confidence interval.
 
 status values: `:BORDER_FOUND_BY_SCAN_TOL`, `:BORDER_FOUND_BY_LOSS_TOL`,
- `:SCAN_BOUND_REACHED`, `:MAX_ITER_STOP`, `:LOSS_ERROR_STOP`
+ `:SCAN_BOUND_REACHED`, `:MAX_ITER_STOP`, `:LOSS_ERROR_STOP`,
+ `:FORCED_STOP` (forced stop outside the scan bound), `:UNKNOWN_STOP`
 """
 struct EndPoint
     value::Union{Real, Nothing}

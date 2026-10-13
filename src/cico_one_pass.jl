@@ -39,10 +39,12 @@ function get_right_endpoint(
 
     NLopt.nlopt_set_param(local_opt, "tolg", MAGIC_TOLG) # default 1e-8
 
+    scan_bound_reached = false
     function constraints_func(x, g) # testing grad methods
         loss_value = loss_func(x)
         
         if (loss_value < 0.) && (scan_func(x) >= scan_bound)
+            scan_bound_reached = true
             throw(NLopt.ForcedStop()) # stop optimization because of scan_bound reached
         elseif length(g) > 0
           if isa(loss_grad, Function)
@@ -119,16 +121,18 @@ function get_right_endpoint(
     if ret == :MAXEVAL_REACHED
         pp = ProfilePoint[]
         res = (nothing, pp, :MAX_ITER_STOP)
-    elseif ret == :FORCED_STOP || ret == :FAILURE # successful result
+    elseif (ret == :FORCED_STOP || ret == :FAILURE) && scan_bound_reached # successful result
         pp = ProfilePoint[]
         res = (nothing, pp, :SCAN_BOUND_REACHED)
+    elseif ret == :FORCED_STOP
+        pp = ProfilePoint[]
+        res = (nothing, pp, :FORCED_STOP)
     elseif ret == :FTOL_REACHED # successful result
         loss = loss_func(optx)
         pp = [ ProfilePoint(optf, loss, optx, ret, nothing) ]
         res = (optf, pp, :BORDER_FOUND_BY_SCAN_TOL)
     else
-        # this part is reached in case of :FAILURE return code
-        # we have seen it in case of gradient methods
+        # :FAILURE and other unhandled NLopt results without a scan-bound stop
         pp = ProfilePoint[]
         res = (nothing, pp, :UNKNOWN_STOP)
     end
