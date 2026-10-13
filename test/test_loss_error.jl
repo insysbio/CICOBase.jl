@@ -21,7 +21,7 @@ end
     )
     @test res0.value === nothing
     @test res0.profilePoints == ProfilePoint[]
-    @test res0.status == :LOSS_ERROR_STOP
+    @test res0.status == :OPTIMIZATION_EXCEPTION_STOP
     @test res0.counter < 5
     @test typeof(res0.supreme) == Float64
 end
@@ -50,7 +50,7 @@ end
     )
     @test res0.value === nothing
     @test length(res0.profilePoints) == 1
-    @test res0.status == :LOSS_ERROR_STOP
+    @test res0.status == :FORCED_STOP
     @test res0.counter < 5
     @test typeof(res0.supreme) == Float64
     pp = res0.profilePoints[1]
@@ -69,7 +69,7 @@ end
     )
     @test res0.value === nothing
     @test length(res0.profilePoints) == 1
-    @test res0.status == :LOSS_ERROR_STOP
+    @test res0.status == :FORCED_STOP
     @test res0.counter < 5
     @test typeof(res0.supreme) == Float64
     pp = res0.profilePoints[1]

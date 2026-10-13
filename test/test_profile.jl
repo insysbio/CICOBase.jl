@@ -62,7 +62,8 @@ end
 
 @testset "update_profile_points! skips missing endpoints" begin
     seed = ProfilePoint(0.0, 0.0, [0.0, 0.0], :FTOL_REACHED, 1)
-    for status in (:SCAN_BOUND_REACHED, :MAX_ITER_STOP, :LOSS_ERROR_STOP, :UNKNOWN_STOP)
+    for status in (:SCAN_BOUND_REACHED, :MAX_ITER_STOP, :FORCED_STOP,
+                   :OPTIMIZATION_EXCEPTION_STOP, :UNKNOWN_STOP)
         calls = Ref(0)
         loss(p) = begin
             calls[] += 1

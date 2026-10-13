@@ -115,7 +115,7 @@ function get_right_endpoint(
         optimize(opt, theta_init)
     catch e
         @warn "Error when call optimize($opt, $theta_init)"
-        return (nothing, ProfilePoint[], :LOSS_ERROR_STOP)
+        return (nothing, ProfilePoint[], :OPTIMIZATION_EXCEPTION_STOP)
     end
 
     if ret == :MAXEVAL_REACHED
