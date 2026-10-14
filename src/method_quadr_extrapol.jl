@@ -14,6 +14,7 @@ function get_right_endpoint(
     scan_hmax = Inf,
     # local alg args
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
+    local_initial_step = theta_init,
     max_iter::Int = 10^5,
     kwargs... # options for local fitter
     )
@@ -37,6 +38,7 @@ function get_right_endpoint(
         loss_func;
         theta_bounds = theta_bounds,
         local_alg = local_alg,
+        local_initial_step = local_initial_step,
         ftol_abs = loss_tol
     )
 

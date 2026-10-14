@@ -11,6 +11,7 @@
         scan_tol::union{Float64,Nothing} = nothing,
         loss_tol::Float64 = 0.,
         local_alg::Symbol = :LN_NELDERMEAD,
+        local_initial_step = nothing,
         silent::Bool = false,
         max_iter::Int = 10^5,
         loss_grad::Union{Function, Symbol} = :EMPTY
@@ -33,6 +34,7 @@ Currently it uses standard NLopt optimization but allows to use parameter scalin
 - `scan_tol`: Absolute tolerance for all component of theta used as termination criterion.  
 - `loss_tol`: Absolute tolerance controlling `loss_func`.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package.
+- `local_initial_step`: nonzero scalar or vector of initial steps in the optimization coordinates. By default, uses the transformed starting values; a zero component raises an error.
 - `max_iter` : maximal number of optimizer iterations.
 - `loss_grad` : This option declares the method for calculating loss function gradient.
         This is required for gradient-based methods. The possible values
@@ -53,6 +55,7 @@ function get_optimal(
     scan_tol::Union{Float64,Nothing} = nothing,
     loss_tol::Float64 = DEFAULT_LOSS_TOL,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
+    local_initial_step = nothing,
     silent::Bool = false,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY
@@ -148,9 +151,8 @@ function get_optimal(
     NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
     
     # initial step for optimization
-    theta_step_auto = initial_step(opt, theta_init_g) # for testing
-    #theta_step = [(x == 0. ? 1. : copy(x)) for x in theta_init_g] # same as auto
-    initial_step!(opt, theta_step_auto)
+    step = isnothing(local_initial_step) ? theta_init_g : local_initial_step
+    initial_step!(opt, _validated_local_initial_step(step, n_theta))
 
     # version 1: internal :LN_AUGLAG box constrains
     theta_bounds_g = scaling.(theta_bounds, scale)

@@ -34,6 +34,21 @@ using RecipesBase
 import PlotUtils.adapted_grid
 using ProgressMeter
 
+function _validated_local_initial_step(step::Real, n::Int)
+    value = Float64(step)
+    iszero(value) && throw(ArgumentError("local_initial_step must be nonzero"))
+    isfinite(value) || throw(ArgumentError("local_initial_step must be finite"))
+    return value
+end
+
+function _validated_local_initial_step(step::AbstractVector{<:Real}, n::Int)
+    length(step) == n || throw(DimensionMismatch("local_initial_step must have $n components"))
+    values = Float64.(step)
+    any(iszero, values) && throw(ArgumentError("local_initial_step must have no zero components"))
+    all(isfinite, values) || throw(ArgumentError("local_initial_step must have finite components"))
+    return values
+end
+
 # include
 include("structures.jl")
 include("get_endpoint.jl")

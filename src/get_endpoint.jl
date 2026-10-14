@@ -104,6 +104,7 @@ unscaling(::Nothing, ::Symbol) = nothing
         scan_tol::Float64 = 1e-3,
         loss_tol::Float64 = 0.,
         local_alg::Symbol = :LN_NELDERMEAD,
+        local_initial_step = nothing,
         max_iter::Int = 10^5,
         loss_grad::Union{Function, Symbol} = :EMPTY,
         silent::Bool = false
@@ -129,6 +130,7 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `scan_tol` : Absolute tolerance for `theta_num` parameter used as termination criterion.
 - `loss_tol` : Absolute tolerance controlling `loss_func` closeness to `loss_crit` (termination criterion). Currently doesn't work for `:CICO_ONE_PASS` method because of limitation in `LN_AUGLAG` interface.
 - `local_alg` : algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
+- `local_initial_step`: nonzero scalar or full parameter vector of initial steps in the optimization coordinates. By default, uses the transformed starting values; a zero component raises an error.
 - `max_iter` : maximal number of fitter iterations. If reaches the result status will be `:MAX_ITER_STOP`.
 - `loss_grad` : For gradient optimization methods it is necessary to set how the gradient of `loss_func` should be calculated.
     There are options:
@@ -160,6 +162,7 @@ function get_endpoint(
     scan_tol::Float64 = 1e-3,
     loss_tol::Float64 = DEFAULT_LOSS_TOL,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
+    local_initial_step = nothing,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY,
     silent::Bool = false,
@@ -278,6 +281,7 @@ function get_endpoint(
         scan_tol,
         loss_tol,
         local_alg,
+        local_initial_step = isnothing(local_initial_step) ? theta_init_gd : local_initial_step,
         max_iter,
         loss_grad = loss_grad_gd
         #kwargs...
@@ -329,6 +333,7 @@ end
         scan_tol::Float64 = 1e-3,
         loss_tol::Float64 = 0.,
         local_alg::Symbol = :LN_NELDERMEAD,
+        local_initial_step = nothing,
         kwargs...
         )
 
@@ -352,6 +357,7 @@ Calculates confidence interval's right or left endpoints for a function of param
 - `scan_tol`: Absolute tolerance for `theta_num` parameter used as termination criterion.  
 - `loss_tol`: Absolute tolerance controlling `loss_func` closeness to `loss_crit` (termination criterion). Currently doesn't work for `:CICO_ONE_PASS` method because of limitation in `LN_AUGLAG` interface.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
+- `local_initial_step`: nonzero scalar or parameter vector of initial steps in the optimization coordinates. By default, uses the transformed starting values; a zero component raises an error.
 - `max_iter` : maximal number of fitter iterations. If reaches the result status will be `:MAX_ITER_STOP`.
 - `scan_grad` : For gradient optimization methods it is necessary to set how the gradient of `scan_func` should be calculated.
     - `:EMPTY` (default) no gradient is set. It works only for gradient-free methods.
@@ -385,6 +391,7 @@ function get_endpoint(
     scan_tol::Float64 = 1e-3,
     loss_tol::Float64 = DEFAULT_LOSS_TOL,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
+    local_initial_step = nothing,
     max_iter::Int = 10^5,
     scan_grad::Union{Function, Symbol} = :EMPTY,
     loss_grad::Union{Function, Symbol} = :EMPTY,
@@ -523,6 +530,7 @@ function get_endpoint(
         scan_tol,
         loss_tol,
         local_alg,
+        local_initial_step = isnothing(local_initial_step) ? theta_init_gd : local_initial_step,
         max_iter,
         scan_grad = scan_grad_gd,
         loss_grad = loss_grad_gd,

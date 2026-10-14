@@ -5,7 +5,7 @@
 
 Plots profile `L(theta)` for parameter `theta_num`,
 `identifiability level`, `identifiability interval`.
-Use `update_profile_points!(pi::ProfileInterval)` function to refine
+Use `update_profile_points!(pi::ParamInterval)` function to refine
 profile points and make your plot more smooth
 """
 @recipe function f(pi::ParamInterval)
@@ -97,7 +97,8 @@ end
 """
     update_profile_points!(
         pi::ParamInterval;
-        max_recursions::Int = 2
+        max_recursions::Int = 2,
+        local_initial_step = get(pi.input.options, :local_initial_step, nothing)
         )
 
 Refines profile points to make your plot more smooth. Internally uses
@@ -107,11 +108,15 @@ See `PlotUtils.adapted_grid`.
 ## Arguments
 - `pi` : `ParamInterval` structure to update.
 - `max_recursions` : how many times each interval is allowed to be refined (default: 2).
+- `local_initial_step` : nonzero scalar or parameter vector of initial steps in the optimization coordinates. Defaults to the interval option, then to the transformed starting values; a zero component raises an error.
 """
 function update_profile_points!(
     pi::ParamInterval;
-    max_recursions::Int = 2
+    max_recursions::Int = 2,
+    local_initial_step = get(pi.input.options, :local_initial_step, nothing)
 )
+    step = isnothing(local_initial_step) ? nothing :
+        _validated_local_initial_step(local_initial_step, length(pi.input.theta_init))
     scale = get(pi.input.options, :scale, fill(:direct, length(pi.input.theta_init)))
     default_bounds = [s == :log ? (0.0, Inf) :
                       s == :logit ? (0.0, 1.0) : DEFAUL_THETA_BOUNDS_ITEM for s in scale]
@@ -127,7 +132,7 @@ function update_profile_points!(
                 get(pi.input.options, :local_alg, DEFAULT_LOCAL_ALG),
                 get(pi.input.options, :theta_bounds, default_bounds),
                 get(pi.input.options, :loss_tol, DEFAULT_LOSS_TOL);
-                max_recursions, scale
+                max_recursions, scale, local_initial_step = step
             )
         else
             @info "$(string(ep.direction)) - no finite endpoint ($(ep.status))"
@@ -147,12 +152,15 @@ function update_profile_endpoint!(
     bounds::Vector{Tuple{Float64,Float64}},
     tol::Float64;
     max_recursions::Int = 2,
-    scale::Vector{Symbol} = fill(:direct, length(init_params))
+    scale::Vector{Symbol} = fill(:direct, length(init_params)),
+    local_initial_step = nothing
 )
     scale_mod = copy(scale)
     scale_mod[id] = :direct
     params = scaling.(init_params, scale_mod)
     bounds = scaling.(bounds, scale_mod)
+    step = _validated_local_initial_step(
+        isnothing(local_initial_step) ? params : local_initial_step, length(init_params))
 
     # bounds
     lb = minimum.(bounds)
@@ -176,6 +184,7 @@ function update_profile_endpoint!(
             lower_bounds!(opt,lb)
             upper_bounds!(opt,ub)
             ftol_abs!(opt,tol)
+            initial_step!(opt, step)
             
             NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
 
