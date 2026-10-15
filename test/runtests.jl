@@ -10,6 +10,7 @@ NLopt.srand(12345)
 include("./cases_func.jl")
 methods_list = [:CICO_ONE_PASS, :LIN_EXTRAPOL, :QUADR_EXTRAPOL]
 
+@testset "CICOBase" begin
 include("test_scaling.jl")
 
 println("Starting tests for get_interval")
@@ -48,3 +49,4 @@ println("Starting tests for get_optimal")
 @testset "gradient-based algorithms" begin include("test_grad_algs.jl") end
 
 @testset "get_optimal series" begin include("test_get_optimal_series.jl") end
+end

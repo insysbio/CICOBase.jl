@@ -162,39 +162,27 @@ function update_profile_endpoint!(
     step = isnothing(local_initial_step) ? nothing :
         _validated_local_initial_step(local_initial_step, length(init_params))
 
-    # bounds
-    lb = minimum.(bounds)
-    ub = maximum.(bounds)
+    profile_at = if length(params) == 1
+        nothing
+    else
+        loss_scaled = p -> loss_func(unscaling.(p, scale_mod))
+        _profile(params, id, loss_scaled;
+            theta_bounds = bounds,
+            local_alg = fit_alg,
+            local_initial_step = step,
+            ftol_abs = tol,
+            maxeval = 0)
+    end
 
     # function to be used in adapted_grid
     function profile_func(x::Float64)
         if length(params) == 1
             return loss_func([x])
         else
-            # ! params_intervals_one_side can be used here
-            fit_params_func = (p,g) -> loss_func(unscaling.(p, scale_mod))
-            opt = Opt(fit_alg, length(params))
-
-            params[id] = x
-            min_objective!(opt, fit_params_func)
-
-            # excluding params[id] from optimization
-            lb[id] = x
-            ub[id] = x
-            lower_bounds!(opt,lb)
-            upper_bounds!(opt,ub)
-            ftol_abs!(opt,tol)
-            if !isnothing(step)
-                initial_step!(opt, step)
-            end
-            
-            NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
-
-            (loss,minx,ret) = optimize(opt,params)
-
-            minx = unscaling.(minx, scale_mod)
+            point = profile_at(x)
+            minx = unscaling.(point.params, scale_mod)
             loss = loss_func(minx)
-            push!(pps_arr, ProfilePoint(x, loss, minx, ret, nothing))
+            push!(pps_arr, ProfilePoint(x, loss, minx, point.ret, nothing))
             return loss
         end
     end

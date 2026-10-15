@@ -106,22 +106,36 @@ function get_right_endpoint(
     )
 
     # version 1: box constrains from :LN_AUGLAG send to specific methods
+    #=
     opt.lower_bounds = [tb[1] for tb in theta_bounds]
     opt.upper_bounds = [tb[2] for tb in theta_bounds]
+    =#
 
     # version 2: creating lower and upper bounds as general constraints
-    #= 
+     
     [ inequality_constraint!(
         opt,
-        (x, g) -> x[i] - theta_bounds[i][2],
+        (x, g) -> begin
+            if !isempty(g)
+                fill!(g, 0.0)
+                g[i] = 1.0
+            end
+            x[i] - theta_bounds[i][2]
+        end,
         0.
     ) for i in 1:n_theta ]
     [ inequality_constraint!(
         opt,
-        (x, g) -> theta_bounds[i][1] - x[i],
+        (x, g) -> begin
+            if !isempty(g)
+                fill!(g, 0.0)
+                g[i] = -1.0
+            end
+            theta_bounds[i][1] - x[i]
+        end,
         0.
     ) for i in 1:n_theta ]
-    =#
+    
 
     # start optimization
     # TODO: just throw error if optimization fails, not :LOSS_ERROR_STOP
