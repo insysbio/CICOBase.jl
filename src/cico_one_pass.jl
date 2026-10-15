@@ -94,7 +94,7 @@ function get_right_endpoint(
         MAGIC_CONSTRAINT_TOL
     )
 
-    # version 1: internal :LN_AUGLAG box constrains
+    # version 1: box constrains from :LN_AUGLAG send to specific methods
     opt.lower_bounds = [tb[1] for tb in theta_bounds]
     opt.upper_bounds = [tb[2] for tb in theta_bounds]
 

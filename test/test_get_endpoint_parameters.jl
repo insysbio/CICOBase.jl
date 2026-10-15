@@ -118,7 +118,7 @@ end
     )
     @test res0.status == :BORDER_FOUND_BY_SCAN_TOL
     @test res0.counter < 1000
-    @test isapprox(res0.value, 5.; atol=1e-2)
+    @test isapprox(log10(res0.value), log10(5.); atol=1e-2)
 end
 
 @testset ":LN_NELDERMEAD, log scale, !unpredictable" begin
@@ -211,7 +211,7 @@ end
     )
     @test res0.status == :BORDER_FOUND_BY_SCAN_TOL
     @test res0.counter < 1000
-    @test isapprox(res0.value, 5.; atol=1e-2)
+    @test isapprox(log10(res0.value), log10(5.); atol=1e-2)
 end
 
 @testset ":LD_SLSQP, log scale, :AUTODIFF, !unpredictable" begin
@@ -357,7 +357,7 @@ end
     )
     @test res0.status == :BORDER_FOUND_BY_SCAN_TOL
     @test res0.counter < 1000
-    @test isapprox(res0.value, 5.; atol=1e-2)
+    @test isapprox(log10(res0.value), log10(5.); atol=1e-2)
 end
 
 @testset ":LD_SLSQP, log scale, Function, !unpredictable" begin

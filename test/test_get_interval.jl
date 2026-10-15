@@ -30,6 +30,17 @@
     @test options[:silent] == true
 end
 
+@testset "parameter scan with log scale" begin
+    pi = get_interval(
+        [3.0, 2.0, 2.1], 1, f_3p_1im_dep, :CICO_ONE_PASS;
+        loss_crit = 9.0, scale = fill(:log, 3), silent = true
+    )
+
+    @test all(ep -> ep.status == :BORDER_FOUND_BY_SCAN_TOL, pi.result)
+    @test isapprox(log10(pi.result[1].value), log10(1.0); atol = 1e-2)
+    @test isapprox(log10(pi.result[2].value), log10(5.0); atol = 1e-2)
+end
+
 @testset "function scan default bounds" begin
     center = [2.0, 0.5]
     loss(p) = sum(abs2, p .- center)
