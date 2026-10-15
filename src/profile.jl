@@ -10,13 +10,14 @@ function _profile(
     theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     # fit alg args
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
-    local_initial_step = theta_init,
+    local_initial_step = nothing,
     ftol_abs::Float64 = 1e-3,
     maxeval::Int = 10^5,
     kwargs...
 )
     theta_length = length(theta_init)
-    step = _validated_local_initial_step(local_initial_step, theta_length)
+    step = isnothing(local_initial_step) ? nothing :
+        _validated_local_initial_step(local_initial_step, theta_length)
 
     # remove target parameter from the list
     indexes_rest = [i for i in 1:theta_length]
@@ -49,7 +50,9 @@ function _profile(
         lower_bounds!(opt, lb)
         upper_bounds!(opt, ub)
         # initial step for optimization
-        initial_step!(opt, step isa AbstractVector ? step[indexes_rest] : step)
+        if !isnothing(step)
+            initial_step!(opt, step isa AbstractVector ? step[indexes_rest] : step)
+        end
 
         # profile function
         return (x::Float64; theta_init_i::Vector{Float64} = theta_init, maxeval::Int = maxeval) -> begin
@@ -128,7 +131,7 @@ as `theta_init_i`.
 - `scale`: per-parameter internal transformations; the scanned component remains direct.
 - `theta_bounds`: vector of tuple `(lower_bound, upper_bound)` for each parameter. Bounds define the ranges for possible parameter values. Default bounds are `(-Inf,Inf)`.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package.
-- `local_initial_step`: nonzero scalar or full parameter vector of initial steps in the optimization coordinates; the scanned component is ignored. By default, uses the transformed starting values; a zero component raises an error.
+- `local_initial_step`: nonzero scalar or full parameter vector of initial steps in the optimization coordinates; the scanned component is ignored. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
 - `ftol_abs` : absolute tolerance criterion for profile function.
 - `maxeval` : maximal number of `loss_func` evaluations to estimate profile point.
 """
@@ -168,7 +171,7 @@ function profile(
         skip_optim = skip_optim,
         theta_bounds = theta_bounds_g,
         local_alg = local_alg,
-        local_initial_step = isnothing(local_initial_step) ? theta_init_g : local_initial_step,
+        local_initial_step,
         ftol_abs = ftol_abs,
         maxeval = maxeval,
         kwargs...

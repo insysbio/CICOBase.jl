@@ -108,7 +108,7 @@ See `PlotUtils.adapted_grid`.
 ## Arguments
 - `pi` : `ParamInterval` structure to update.
 - `max_recursions` : how many times each interval is allowed to be refined (default: 2).
-- `local_initial_step` : nonzero scalar or parameter vector of initial steps in the optimization coordinates. Defaults to the interval option, then to the transformed starting values; a zero component raises an error.
+- `local_initial_step` : nonzero scalar or parameter vector of initial steps in the optimization coordinates. Defaults to the interval option; `nothing` lets NLopt choose the step. An explicit zero component raises an error.
 """
 function update_profile_points!(
     pi::ParamInterval;
@@ -159,8 +159,8 @@ function update_profile_endpoint!(
     scale_mod[id] = :direct
     params = scaling.(init_params, scale_mod)
     bounds = scaling.(bounds, scale_mod)
-    step = _validated_local_initial_step(
-        isnothing(local_initial_step) ? params : local_initial_step, length(init_params))
+    step = isnothing(local_initial_step) ? nothing :
+        _validated_local_initial_step(local_initial_step, length(init_params))
 
     # bounds
     lb = minimum.(bounds)
@@ -184,7 +184,9 @@ function update_profile_endpoint!(
             lower_bounds!(opt,lb)
             upper_bounds!(opt,ub)
             ftol_abs!(opt,tol)
-            initial_step!(opt, step)
+            if !isnothing(step)
+                initial_step!(opt, step)
+            end
             
             NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
 

@@ -34,7 +34,7 @@ Currently it uses standard NLopt optimization but allows to use parameter scalin
 - `scan_tol`: Absolute tolerance for all component of theta used as termination criterion.  
 - `loss_tol`: Absolute tolerance controlling `loss_func`.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package.
-- `local_initial_step`: nonzero scalar or vector of initial steps in the optimization coordinates. By default, uses the transformed starting values; a zero component raises an error.
+- `local_initial_step`: nonzero scalar or vector of initial steps in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
 - `max_iter` : maximal number of optimizer iterations.
 - `loss_grad` : This option declares the method for calculating loss function gradient.
         This is required for gradient-based methods. The possible values
@@ -151,8 +151,9 @@ function get_optimal(
     NLopt.nlopt_set_param(opt, "tolg", MAGIC_TOLG) # default 1e-8
     
     # initial step for optimization
-    step = isnothing(local_initial_step) ? theta_init_g : local_initial_step
-    initial_step!(opt, _validated_local_initial_step(step, n_theta))
+    if !isnothing(local_initial_step)
+        initial_step!(opt, _validated_local_initial_step(local_initial_step, n_theta))
+    end
 
     # version 1: internal :LN_AUGLAG box constrains
     theta_bounds_g = scaling.(theta_bounds, scale)

@@ -75,7 +75,7 @@ Computes confidence interval for single component `theta_num` of parameter vecto
 - `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.
 - `scale`: vector of scale transformations for each parameters' component. Possible values: `:direct` (`:lin`), `:log`, `:logit`. This option can speed up the optimization, especially for wide `theta_bounds`. The default value is `:direct` (no transformation) for all parameters.
 - `scan_bounds`: scan bounds tuple for `theta_num` parameter. Should be within the `theta_bounds` for `theta_num` parameter. Default is `(-9.,9.)` for `:direct` scales and `(1e-9, 1e+9)` for `:log`.
-- `local_initial_step`: passed to `get_endpoint`; a nonzero scalar or full parameter vector in the optimization coordinates. By default, uses the transformed starting values; a zero component raises an error.
+- `local_initial_step`: passed to `get_endpoint`; a nonzero scalar or full parameter vector in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
 - `kwargs...`: the additional arguments passed to [`get_endpoint`](@ref)
 """
 function get_interval(
@@ -162,7 +162,7 @@ Computes confidence interval for function of parameters `scan_func`.
 - `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.
 - `scale`: vector of scale transformations for each parameters' component. Possible values: `:direct` (`:lin`), `:log`, `:logit`. This option can speed up the optimization, especially for wide `theta_bounds`. The default value is `:direct` (no transformation) for all parameters.
 - `scan_bounds`: scan bounds tuple for `scan_func` values in their original units. Default is `(-9.0, 9.0)`, independent of parameter scaling.
-- `local_initial_step`: passed to `get_endpoint`; a nonzero scalar or parameter vector in the optimization coordinates. By default, uses the transformed starting values; a zero component raises an error.
+- `local_initial_step`: passed to `get_endpoint`; a nonzero scalar or parameter vector in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
 - `kwargs...`: the additional arguments passed to [`get_endpoint`](@ref)
 """
 function get_interval(

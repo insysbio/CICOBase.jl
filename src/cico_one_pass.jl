@@ -14,7 +14,7 @@ function get_right_endpoint(
     # worse results for :LN_COBYLA, :LN_PRAXIS
     # errors for :LN_BOBYQA, :LN_SBPLX, :LN_NEWUOA
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
-    local_initial_step = theta_init,
+    local_initial_step = nothing,
     # options for local fitter :max_iter
     max_iter::Int = 10^5,
     scan_grad::Union{Function, Symbol} = :EMPTY,
@@ -38,7 +38,9 @@ function get_right_endpoint(
     ftol_abs!(local_opt, scan_tol)
     ftol_rel!(local_opt, scan_rtol)
     # initial step for optimization
-    initial_step!(local_opt, _validated_local_initial_step(local_initial_step, n_theta))
+    if !isnothing(local_initial_step)
+        initial_step!(local_opt, _validated_local_initial_step(local_initial_step, n_theta))
+    end
 
     NLopt.nlopt_set_param(local_opt, "tolg", MAGIC_TOLG) # default 1e-8
 
@@ -151,7 +153,7 @@ function get_right_endpoint(
     scan_rtol::Float64 = 0.,
     loss_tol::Float64 = DEFAULT_LOSS_TOL,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
-    local_initial_step = theta_init,
+    local_initial_step = nothing,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY,
     #kwargs...

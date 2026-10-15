@@ -2,6 +2,21 @@
 # testing only the case f_2p
 # using CICOBase
 
+@testset "automatic and explicit initial step" begin
+    loss(x) = (x[1] - 2.0)^2 + (x[2] - 3.0)^2
+    initial = [0.0, 1.0]
+
+    result = get_optimal(initial, loss; scan_tol = 1e-5, silent = true)
+    @test isapprox(result.params, [2.0, 3.0]; atol = 1e-3)
+
+    @test isapprox(get_optimal(initial, loss; local_initial_step = 1.0,
+                               scan_tol = 1e-5, silent = true).loss, 0.0; atol = 1e-5)
+    @test isapprox(get_optimal(initial, loss; local_initial_step = [1.0, 2.0],
+                               scan_tol = 1e-5, silent = true).loss, 0.0; atol = 1e-5)
+    @test_throws ArgumentError get_optimal(initial, loss; local_initial_step = 0.0)
+    @test_throws ArgumentError get_optimal(initial, loss; local_initial_step = [1.0, 0.0])
+end
+
 @testset "testing get_optimal() for :LN_PRAXIS and f_2p, identifiable" begin
     res0 = get_optimal(
         [4., 1.],
