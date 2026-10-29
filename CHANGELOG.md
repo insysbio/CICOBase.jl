@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.6.2
+
+- Added `local_initial_step` control for local NLopt optimizers.
+- Fixed scaling and bounds handling in interval and profile calculations.
+- Fixed gradient handling and improved numerical stability.
+- Fixed profile updates and initialization in edge cases.
+
 ## 0.6.1
 
 - Fixed a bug where `supreme` could be skipped when using `:AUTODIFF`.
