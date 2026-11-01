@@ -37,6 +37,10 @@ function get_right_endpoint(
     local_opt = Opt(local_alg, n_theta)
     ftol_abs!(local_opt, scan_tol)
     ftol_rel!(local_opt, scan_rtol)
+    # AUGLAG replaces a nonpositive local xtol_rel with 1e-8 when local
+    # ftol_rel is also nonpositive. Keep this criterion nearly inactive so
+    # the absolute function tolerance can stop the local optimization first.
+    xtol_rel!(local_opt, 1e-18)
     # initial step for optimization
     if !isnothing(local_initial_step)
         initial_step!(local_opt, _validated_local_initial_step(local_initial_step, n_theta))
