@@ -35,8 +35,14 @@ function get_right_endpoint(
 
     # optimizer
     local_opt = Opt(local_alg, n_theta)
-    ftol_abs!(local_opt, scan_tol)
-    ftol_rel!(local_opt, scan_rtol)
+    # The local objective includes AUGLAG's penalty for loss_func. Its scale
+    # changes with the penalty coefficient, so local ftol_abs is not in pure
+    # scan_func units and local ftol_rel measures a different relative change.
+    # Keep the old values for now; tune both local tolerances independently.
+    local_ftol_abs = scan_tol
+    local_ftol_rel = scan_rtol
+    ftol_abs!(local_opt, local_ftol_abs)
+    ftol_rel!(local_opt, local_ftol_rel)
     # AUGLAG replaces a nonpositive local xtol_rel with 1e-8 when local
     # ftol_rel is also nonpositive. Keep this criterion nearly inactive so
     # the absolute function tolerance can stop the local optimization first.
@@ -82,6 +88,7 @@ function get_right_endpoint(
     # constrain optimizer
     opt = Opt(:LN_AUGLAG, n_theta)
     ftol_abs!(opt, scan_tol)
+    ftol_rel!(opt, scan_rtol)
 
     max_objective!(
         opt,
