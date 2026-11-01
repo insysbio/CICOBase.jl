@@ -297,7 +297,8 @@ function get_endpoint(
             pp.loss + loss_crit,
             unscaling.(pp.params, scale),
             pp.ret,
-            pp.counter
+            pp.counter,
+            pp.force_stop_code
         )
     end
     pps = [ temp_fun(pp_gd[i]) for i in 1:length(pp_gd) ]
@@ -545,7 +546,8 @@ function get_endpoint(
             pp.loss + loss_crit,
             unscaling.(pp.params, scale),
             pp.ret,
-            pp.counter
+            pp.counter,
+            pp.force_stop_code
         )
     end
     pps = [ temp_fun(pp_gd[i]) for i in 1:length(pp_gd) ]

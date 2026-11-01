@@ -68,7 +68,8 @@ function get_right_endpoint(
         if point_3.ret == :MAXEVAL_REACHED
             return (nothing, pps, :MAX_ITER_STOP) # break
         elseif point_3.ret == :FORCED_STOP
-            return (nothing, pps, :LOSS_ERROR_STOP)
+            status = point_3.force_stop_code == STOP_CODE_LOSS_ERROR ? :LOSS_ERROR_STOP : :NLOPT_FORCED_STOP
+            return (nothing, pps, status)
         elseif x_3 >= scan_bound && point_3.loss < 0.
             return (nothing, pps, :SCAN_BOUND_REACHED) # break
         # no checking for the first and second iterations

@@ -27,6 +27,15 @@ const MAGIC_TOLG = 1e-3
 # LN_AUGLAG
 const MAGIC_CONSTRAINT_TOL = 1e-3
 
+# 0 means no forced stop; NLopt.ForcedStop() uses 1. Keep 3 for a future
+# loss-tolerance stop so that callback failures have distinct reason codes.
+const STOP_CODE_SCAN_BOUND = 2
+const STOP_CODE_LOSS_TOL = 3
+const STOP_CODE_LOSS_ERROR = 4
+const STOP_CODE_SCAN_ERROR = 5
+const STOP_CODE_LOSS_GRAD_ERROR = 6
+const STOP_CODE_SCAN_GRAD_ERROR = 7
+
 using NLopt, ForwardDiff
 using Calculus
 using LinearAlgebra

@@ -68,9 +68,11 @@ function _profile(
                 loss = try
                     loss_func(theta_full)
                 catch e
-                    @warn "Error when call loss_func($theta_full)"
-                    #throw(e)
-                    throw(NLopt.ForcedStop())
+                    e isa NLopt.ForcedStop && throw(e)
+                    @warn "Error when call loss_func($theta_full)" exception = (e, catch_backtrace())
+                    NLopt.force_stop!(opt, STOP_CODE_LOSS_ERROR)
+                    fill!(g, 0.0)
+                    return 0.0
                 end
                 counter += 1 # update counter
 
@@ -79,6 +81,7 @@ function _profile(
             # set optimizer
             min_objective!(opt, loss_func_rest)
             maxeval!(opt, maxeval)
+            NLopt.force_stop!(opt, 0) # The same Opt is reused for later profile points.
             # start optimization
             (loss, theta_opt, ret) = optimize(opt, theta_init_rest)
             splice!(theta_opt, theta_num:(theta_num-1), x)
@@ -88,7 +91,8 @@ function _profile(
                 loss,
                 theta_opt,
                 ret,
-                counter
+                counter,
+                NLopt.force_stop(opt)
             )
         end
     end

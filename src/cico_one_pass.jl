@@ -54,19 +54,46 @@ function get_right_endpoint(
 
     NLopt.nlopt_set_param(local_opt, "tolg", MAGIC_TOLG) # default 1e-8
 
+    opt = Opt(:LN_AUGLAG, n_theta)
+    function stop_after_callback_error(e, code, g, source)
+        e isa NLopt.ForcedStop && throw(e) # Preserve an explicit NLopt stop from user code.
+        @warn "Error in $source" exception = (e, catch_backtrace())
+        NLopt.force_stop!(opt, code)
+        fill!(g, 0.0)
+        return 0.0 # NLopt still needs a finite callback result before stopping.
+    end
+
     function constraints_func(x, g) # testing grad methods
-        loss_value = loss_func(x)
+        loss_value = try
+            loss_func(x)
+        catch e
+            return stop_after_callback_error(e, STOP_CODE_LOSS_ERROR, g, "loss_func")
+        end
         
-        if (loss_value < 0.) && (scan_func(x) >= scan_bound)
-            throw(NLopt.ForcedStop()) # stop optimization because of scan_bound reached
-        elseif length(g) > 0
-          if isa(loss_grad, Function)
-            g .= loss_grad(x)
-          elseif loss_grad == :AUTODIFF
-            ForwardDiff.gradient!(g, loss_func, x)
-          elseif loss_grad == :FINITE
-            Calculus.finite_difference!(loss_func,x,g,:central)
-          end
+        if loss_value < 0.
+            scan_value = try
+                scan_func(x)
+            catch e
+                return stop_after_callback_error(e, STOP_CODE_SCAN_ERROR, g, "scan_func")
+            end
+            if scan_value >= scan_bound
+                NLopt.force_stop!(opt, STOP_CODE_SCAN_BOUND)
+                fill!(g, 0.0)
+                return loss_value
+            end
+        end
+        if length(g) > 0
+            try
+                if isa(loss_grad, Function)
+                    g .= loss_grad(x)
+                elseif loss_grad == :AUTODIFF
+                    ForwardDiff.gradient!(g, loss_func, x)
+                elseif loss_grad == :FINITE
+                    Calculus.finite_difference!(loss_func, x, g, :central)
+                end
+            catch e
+                return stop_after_callback_error(e, STOP_CODE_LOSS_GRAD_ERROR, g, "loss gradient")
+            end
         end
         
         return loss_value
@@ -74,19 +101,26 @@ function get_right_endpoint(
 
     function obj_func(x, g)
         if length(g) > 0
-          if isa(scan_grad, Function)
-            g .= scan_grad(x)
-          elseif scan_grad == :AUTODIFF
-            ForwardDiff.gradient!(g, scan_func, x)
-          elseif scan_grad == :FINITE
-            Calculus.finite_difference!(scan_func, x, g, :central)
-          end
+            try
+                if isa(scan_grad, Function)
+                    g .= scan_grad(x)
+                elseif scan_grad == :AUTODIFF
+                    ForwardDiff.gradient!(g, scan_func, x)
+                elseif scan_grad == :FINITE
+                    Calculus.finite_difference!(scan_func, x, g, :central)
+                end
+            catch e
+                return stop_after_callback_error(e, STOP_CODE_SCAN_GRAD_ERROR, g, "scan gradient")
+            end
         end
-        return scan_func(x)
+        return try
+            scan_func(x)
+        catch e
+            stop_after_callback_error(e, STOP_CODE_SCAN_ERROR, g, "scan_func")
+        end
     end
 
     # constrain optimizer
-    opt = Opt(:LN_AUGLAG, n_theta)
     ftol_abs!(opt, scan_tol)
     ftol_rel!(opt, scan_rtol)
 
@@ -124,29 +158,42 @@ function get_right_endpoint(
     =#
 
     # start optimization
-    # TODO: just throw error if optimization fails, not :LOSS_ERROR_STOP
     (optf, optx, ret) = try 
         optimize(opt, theta_init)
     catch e
-        @warn "Error when call optimize($opt, $theta_init)"
-        return (nothing, ProfilePoint[], :LOSS_ERROR_STOP)
+        @warn "Error when call optimize($opt, $theta_init)" exception = (e, catch_backtrace())
+        return (nothing, ProfilePoint[], :UNKNOWN_STOP)
     end
 
-    if ret == :MAXEVAL_REACHED
-        pp = ProfilePoint[]
-        res = (nothing, pp, :MAX_ITER_STOP)
-    elseif ret == :FORCED_STOP || ret == :FAILURE # successful result
-        pp = ProfilePoint[]
-        res = (nothing, pp, :SCAN_BOUND_REACHED)
+    stop_code = NLopt.force_stop(opt)
+    if stop_code == STOP_CODE_SCAN_BOUND
+        res = (nothing, ProfilePoint[], :SCAN_BOUND_REACHED)
+    elseif stop_code == STOP_CODE_LOSS_ERROR
+        res = (nothing, ProfilePoint[], :LOSS_ERROR_STOP)
+    elseif stop_code == STOP_CODE_SCAN_ERROR
+        res = (nothing, ProfilePoint[], :SCAN_ERROR_STOP)
+    elseif stop_code == STOP_CODE_LOSS_GRAD_ERROR
+        res = (nothing, ProfilePoint[], :LOSS_GRAD_ERROR_STOP)
+    elseif stop_code == STOP_CODE_SCAN_GRAD_ERROR
+        res = (nothing, ProfilePoint[], :SCAN_GRAD_ERROR_STOP)
+    elseif ret == :MAXEVAL_REACHED
+        res = (nothing, ProfilePoint[], :MAX_ITER_STOP)
+    elseif ret == :FORCED_STOP
+        res = (nothing, ProfilePoint[], :NLOPT_FORCED_STOP)
+    elseif ret == :FAILURE
+        res = (nothing, ProfilePoint[], :NLOPT_FAILURE)
     elseif ret == :FTOL_REACHED # successful result
-        loss = loss_func(optx)
+        loss = try
+            loss_func(optx)
+        catch e
+            @warn "Error in loss_func after optimization" exception = (e, catch_backtrace())
+            return (nothing, ProfilePoint[], :LOSS_ERROR_STOP)
+        end
         pp = [ ProfilePoint(optf, loss, optx, ret, nothing) ]
         res = (optf, pp, :BORDER_FOUND_BY_SCAN_TOL)
     else
-        # this part is reached in case of :FAILURE return code
-        # we have seen it in case of gradient methods
-        pp = ProfilePoint[]
-        res = (nothing, pp, :UNKNOWN_STOP)
+        # Other NLopt results without a recognized stopping condition.
+        res = (nothing, ProfilePoint[], :UNKNOWN_STOP)
     end
 
     return res
