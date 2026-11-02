@@ -14,6 +14,11 @@ function get_right_endpoint(
     # worse results for :LN_COBYLA, :LN_PRAXIS
     # errors for :LN_BOBYQA, :LN_SBPLX, :LN_NEWUOA
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
+    # Used by :LN_COBYLA, :LN_PRAXIS, :LN_NEWUOA, :LN_NEWUOA_BOUND,
+    # :LN_BOBYQA, :LN_NELDERMEAD, :LN_SBPLX, :LD_MMA, :LD_CCSAQ.
+    # Ignored by :LD_LBFGS, :LD_VAR1, :LD_VAR2, :LD_SLSQP,
+    # :LD_TNEWTON, :LD_TNEWTON_RESTART, :LD_TNEWTON_PRECOND,
+    # :LD_TNEWTON_PRECOND_RESTART (NLopt src/api/optimize.c).
     local_initial_step = nothing,
     # options for local fitter :max_iter
     max_iter::Int = 10^5,

@@ -54,12 +54,12 @@ function test_alg_interval(
           if isa(f.endpoints[i][1], Nothing)
             @test isa(ep.result[1].value, Nothing) skip = should_skip
           else
-            @test isapprox(ep.result[1].value, f.endpoints[i][1], atol = tol * 10.) skip = should_skip
+            @test !isnothing(ep.result[1].value) && isapprox(ep.result[1].value, f.endpoints[i][1], atol = tol * 10.) skip = should_skip
           end
           if isa(f.endpoints[i][2], Nothing)
             @test isa(ep.result[2].value, Nothing) skip = should_skip
           else
-            @test isapprox(ep.result[2].value, f.endpoints[i][2], atol = tol * 10.) skip = should_skip
+            @test !isnothing(ep.result[2].value) && isapprox(ep.result[2].value, f.endpoints[i][2], atol = tol * 10.) skip = should_skip
           end
         end
       end

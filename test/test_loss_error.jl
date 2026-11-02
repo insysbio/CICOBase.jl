@@ -16,19 +16,24 @@ end
     bad_grad(x) = error("gradient failed")
     bad_scan(x) = error("scan failed")
 
-    @test get_right_endpoint([0.0], bad_scan, loss, Val(:CICO_ONE_PASS);
-        scan_bound = 9.0)[3] == :SCAN_ERROR_STOP
-    @test get_right_endpoint([0.0], scan, loss, Val(:CICO_ONE_PASS);
-        local_alg = :LD_MMA, scan_grad = good_grad, loss_grad = bad_grad)[3] == :LOSS_GRAD_ERROR_STOP
-    @test get_right_endpoint([0.0], scan, loss, Val(:CICO_ONE_PASS);
-        local_alg = :LD_MMA, scan_grad = bad_grad, loss_grad = good_grad)[3] == :SCAN_GRAD_ERROR_STOP
+    scan_error = @test_logs (:warn, "Error in scan_func") get_right_endpoint(
+        [0.0], bad_scan, loss, Val(:CICO_ONE_PASS); scan_bound = 9.0)
+    @test scan_error[3] == :SCAN_ERROR_STOP
+    loss_grad_error = @test_logs (:warn, "Error in loss gradient") get_right_endpoint(
+        [0.0], scan, loss, Val(:CICO_ONE_PASS);
+        local_alg = :LD_MMA, scan_grad = good_grad, loss_grad = bad_grad)
+    @test loss_grad_error[3] == :LOSS_GRAD_ERROR_STOP
+    scan_grad_error = @test_logs (:warn, "Error in scan gradient") get_right_endpoint(
+        [0.0], scan, loss, Val(:CICO_ONE_PASS);
+        local_alg = :LD_MMA, scan_grad = bad_grad, loss_grad = good_grad)
+    @test scan_grad_error[3] == :SCAN_GRAD_ERROR_STOP
     forced_scan(x) = throw(NLopt.ForcedStop())
     @test get_right_endpoint([0.0], forced_scan, loss, Val(:CICO_ONE_PASS))[3] == :NLOPT_FORCED_STOP
 end
 
 @testset "loss error in :CICO_ONE_PASS" begin
     err_fun = err_fun_generate()
-    res0 = get_endpoint(
+    res0 = @test_logs (:warn, "Error in loss_func") get_endpoint(
         [3., 4.],
         1,
         err_fun,
@@ -50,7 +55,7 @@ end
         1,
         err_func
     )
-    res0 = prof(5.)
+    res0 = @test_logs (:warn, r"^Error when call loss_func") prof(5.)
     @test res0.ret == :FORCED_STOP
     @test res0.force_stop_code == CICOBase.STOP_CODE_LOSS_ERROR
     @test res0.counter == 5
@@ -60,7 +65,7 @@ end
     fail = Ref(true)
     loss(x) = fail[] ? error("temporary loss error") : (x[2] - 1.0)^2
     prof = CICOBase._profile([0.0, 0.0], 1, loss)
-    first = prof(0.0)
+    first = @test_logs (:warn, r"^Error when call loss_func") prof(0.0)
     @test first.ret == :FORCED_STOP
     @test first.force_stop_code == CICOBase.STOP_CODE_LOSS_ERROR
     fail[] = false
@@ -81,7 +86,7 @@ end
 
 @testset "loss error in :LIN_EXTRAPOL" begin
     err_fun = err_fun_generate()
-    res0 = get_endpoint(
+    res0 = @test_logs (:warn, r"^Error when call loss_func") get_endpoint(
         [3., 4.],
         1,
         err_fun,
@@ -101,7 +106,7 @@ end
 
 @testset "loss error in :QUADR_EXTRAPOL" begin
     err_fun = err_fun_generate()
-    res0 = get_endpoint(
+    res0 = @test_logs (:warn, r"^Error when call loss_func") get_endpoint(
         [3., 4.],
         1,
         err_fun,
