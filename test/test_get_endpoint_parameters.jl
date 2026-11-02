@@ -61,7 +61,7 @@ end
         silent = true
     ) for i in 1:3]
 
-    @test isapprox(log10(res0[1].value), log10(5.), atol=1e-2)
+    @test !isnothing(res0[1].value) && isapprox(log10(res0[1].value), log10(5.), atol=1e-2)
     @test length(res0[1].profilePoints) > 0
     @test res0[1].status == :BORDER_FOUND_BY_SCAN_TOL
     @test res0[1].direction == :right
@@ -118,7 +118,7 @@ end
     )
     @test res0.status == :BORDER_FOUND_BY_SCAN_TOL
     @test res0.counter < 1000
-    @test isapprox(log10(res0.value), log10(5.); atol=1e-2)
+    @test !isnothing(res0.value) && isapprox(log10(res0.value), log10(5.); atol=1e-2)
 end
 
 @testset ":LN_NELDERMEAD, log scale, !unpredictable" begin

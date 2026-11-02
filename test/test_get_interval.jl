@@ -37,8 +37,8 @@ end
     )
 
     @test all(ep -> ep.status == :BORDER_FOUND_BY_SCAN_TOL, pi.result)
-    @test isapprox(log10(pi.result[1].value), log10(1.0); atol = 1e-2)
-    @test isapprox(log10(pi.result[2].value), log10(5.0); atol = 1e-2)
+    @test !isnothing(pi.result[1].value) && isapprox(log10(pi.result[1].value), log10(1.0); atol = 1e-2)
+    @test !isnothing(pi.result[2].value) && isapprox(log10(pi.result[2].value), log10(5.0); atol = 1e-2)
 end
 
 @testset "function scan default bounds" begin
@@ -53,8 +53,8 @@ end
             loss_grad = :AUTODIFF, silent = true
         )
         @test pi.input.options[:scan_bounds] == (-9.0, 9.0)
-        @test isapprox(pi.result[1].value, -radius; atol = 1e-3)
-        @test isapprox(pi.result[2].value, radius; atol = 1e-3)
+        @test !isnothing(pi.result[1].value) && isapprox(pi.result[1].value, -radius; atol = 1e-3)
+        @test !isnothing(pi.result[2].value) && isapprox(pi.result[2].value, radius; atol = 1e-3)
         @test all(ep -> ep.status == :BORDER_FOUND_BY_SCAN_TOL, pi.result)
         @test all(pp -> isapprox(pp.value, scan(pp.params); atol = 1e-9),
             [pp for ep in pi.result for pp in ep.profilePoints])
