@@ -8,6 +8,7 @@ Four functions are exported from this module for public use:
 - [`get_interval`](@ref). Computes confidence interval.
 - [`profile`](@ref). Generates the profile function based on `loss_func`
 - [`update_profile_points!`](@ref). Updates confidence interval with likelihood profile points.
+- [`validate_interval`](@ref). Checks both endpoints of a parameter interval.
 
 """
 module CICOBase
@@ -66,6 +67,7 @@ include("cico_one_pass.jl")
 include("method_lin_extrapol.jl")
 include("method_quadr_extrapol.jl")
 include("profile.jl")
+include("validate_interval.jl")
 include("plot_interval.jl")
 include("show.jl")
 include("get_optimal.jl")
@@ -80,6 +82,7 @@ export get_right_endpoint,
     ParamIntervalInput,
     ParamInterval,
     get_interval,
+    validate_interval,
     update_profile_points!,
     get_optimal
 end #module

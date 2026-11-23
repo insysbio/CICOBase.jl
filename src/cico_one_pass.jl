@@ -77,7 +77,11 @@ function get_right_endpoint(
             return stop_after_callback_error(e, STOP_CODE_LOSS_ERROR, g, "loss_func")
         end
         
-        if loss_value < 0.
+        # Only report scan-bound success for points inside theta_bounds. This
+        # also protects the alternative inequality-constraint implementation,
+        # whose intermediate callback points can be outside the bounds.
+        within_theta_bounds = all(i -> theta_bounds[i][1] <= x[i] <= theta_bounds[i][2], 1:n_theta)
+        if loss_value < 0. && within_theta_bounds
             scan_value = try
                 scan_func(x)
             catch e
@@ -146,23 +150,34 @@ function get_right_endpoint(
         MAGIC_CONSTRAINT_TOL
     )
 
-    # version 1: box constrains from :LN_AUGLAG send to specific methods
+    # version 1: box constraints passed to :LN_AUGLAG and local methods
     opt.lower_bounds = [tb[1] for tb in theta_bounds]
     opt.upper_bounds = [tb[2] for tb in theta_bounds]
 
     # version 2: creating lower and upper bounds as general constraints
-    #= 
-    [ inequality_constraint!(
-        opt,
-        (x, g) -> x[i] - theta_bounds[i][2],
-        0.
-    ) for i in 1:n_theta ]
-    [ inequality_constraint!(
-        opt,
-        (x, g) -> theta_bounds[i][1] - x[i],
-        0.
-    ) for i in 1:n_theta ]
-    =#
+    # NLopt requires c(x) <= 0; infinite bounds must not become callbacks
+    # returning infinities. Gradients are needed for gradient local methods.
+    # for i in 1:n_theta
+    #     lower, upper = theta_bounds[i]
+    #     if isfinite(upper)
+    #         inequality_constraint!(opt, (x, g) -> begin
+    #             if !isempty(g)
+    #                 fill!(g, 0.0)
+    #                 g[i] = 1.0
+    #             end
+    #             x[i] - upper
+    #         end, 0.0)
+    #     end
+    #     if isfinite(lower)
+    #         inequality_constraint!(opt, (x, g) -> begin
+    #             if !isempty(g)
+    #                 fill!(g, 0.0)
+    #                 g[i] = -1.0
+    #             end
+    #             lower - x[i]
+    #         end, 0.0)
+    #     end
+    # end
 
     # start optimization
     (optf, optx, ret) = try 
