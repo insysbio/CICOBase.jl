@@ -120,7 +120,7 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `theta_num`: index of vector component for identification: `theta_init(theta_num)`.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
+- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
 - `direction`: `:right` or `:left` endpoint to estimate.
 
 ## Keyword arguments
@@ -130,7 +130,7 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `scan_bound` : value which states the area of confidence point analysis.
 - `scan_tol` : Absolute tolerance for `theta_num` parameter used as termination criterion.
 - `penalty_tol`: Absolute tolerance for changes in the local AUGLAG penalized objective; defaults to `1e-6` independently of `scan_tol`. It does not guarantee profile loss accuracy. Used by `:CICO_ONE_PASS`.
-- `loss_tol`: For `:CICO_ONE_PASS` and `:DIRECT_SLSQP`, the absolute tolerance for positive loss constraint violation in NLopt's stopping checks, default `1e-3`. For extrapolation methods, the default is `0.0` and the tolerance controls proximity to the critical loss.
+- `loss_tol`: For `:CICO_ONE_PASS`, `:DIRECT_SLSQP` and `:DIRECT_COBYLA`, the absolute tolerance for positive loss constraint violation in NLopt's stopping checks, default `1e-3`. For extrapolation methods, the default is `0.0` and the tolerance controls proximity to the critical loss.
 - `kwargs...`: Other options passed to the selected endpoint method.
 - `local_alg` : algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
 - `local_initial_step`: nonzero scalar or full parameter vector of initial steps in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
@@ -350,7 +350,7 @@ Calculates confidence interval's right or left endpoints for a function of param
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `scan_func`: function of parameters.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS` and `:DIRECT_SLSQP`.
+- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS`, `:DIRECT_SLSQP` and `:DIRECT_COBYLA`.
 - `direction`: `:right` or `:left` endpoint to estimate.
 
 ## Keyword arguments

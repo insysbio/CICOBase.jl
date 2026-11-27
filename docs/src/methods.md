@@ -1,7 +1,8 @@
 # Methods
 
- Four methods implemented in **CICOBase** package: `:CICO_ONE_PASS`,
+ Five methods implemented in **CICOBase** package: `:CICO_ONE_PASS`,
  `:DIRECT_SLSQP`,
+ `:DIRECT_COBYLA`,
  `:LIN_EXTRAPOL`,
  `:QUADR_EXTRAPOL`.
 
@@ -21,7 +22,7 @@ does not guarantee the accuracy of the profile loss. The outer solver uses
 `scan_tol` in scan coordinates, independently of `penalty_tol`. `loss_tol`
 sets the allowed positive loss residual for AUGLAG's feasibility check and
 defaults to `1e-3` in loss units.
-For `:CICO_ONE_PASS` and `:DIRECT_SLSQP`, `loss_tol=0.0` uses zero
+For `:CICO_ONE_PASS`, `:DIRECT_SLSQP` and `:DIRECT_COBYLA`, `loss_tol=0.0` uses zero
 constraint tolerance. The tolerance applies to NLopt's stopping checks and
 does not establish that the returned point is close to the critical loss.
 
@@ -47,6 +48,14 @@ evaluations. `penalty_tol`,
 `:ROUNDOFF_LIMITED` and other unclassified NLopt results produce
 `:UNKNOWN_STOP`. The experimental comparison under
 `hypo/02-nlopt-auglag` found a number of unvalidated endpoints on Bruno.
+
+## :DIRECT_COBYLA
+
+`:DIRECT_COBYLA` applies NLopt's derivative-free `:LN_COBYLA` directly to the
+scan objective and loss inequality. It accepts `scan_tol`, `loss_tol`, `max_iter`
+and `local_initial_step`, without requiring gradients. `loss_tol` defaults to
+`1e-3` and controls NLopt's constraint feasibility tolerance. When supplied,
+`local_initial_step` uses optimization coordinates.
 
 ## Checking a parameter interval
 

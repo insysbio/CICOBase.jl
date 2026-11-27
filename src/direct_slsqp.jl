@@ -2,7 +2,7 @@ function get_right_endpoint(
     theta_init::Vector{Float64},
     scan_func::Function,
     loss_func::Function,
-    method::Val{:DIRECT_SLSQP};
+    method::Union{Val{:DIRECT_SLSQP}, Val{:DIRECT_COBYLA}};
     theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
@@ -11,21 +11,26 @@ function get_right_endpoint(
     max_iter::Int = 10^5,
     scan_grad::Union{Function,Symbol} = :EMPTY,
     loss_grad::Union{Function,Symbol} = :EMPTY,
+    local_initial_step = nothing,
     kwargs...
 )
-    scan_grad == :EMPTY && throw(ArgumentError("`scan_grad` must be set for DIRECT_SLSQP"))
-    loss_grad == :EMPTY && throw(ArgumentError("`loss_grad` must be set for DIRECT_SLSQP"))
+    cobyla = method isa Val{:DIRECT_COBYLA}
+    !cobyla && scan_grad == :EMPTY && throw(ArgumentError("`scan_grad` must be set for DIRECT_SLSQP"))
+    !cobyla && loss_grad == :EMPTY && throw(ArgumentError("`loss_grad` must be set for DIRECT_SLSQP"))
     isfinite(loss_tol) && loss_tol >= 0 ||
         throw(ArgumentError("loss_tol must be finite and nonnegative"))
     haskey(kwargs, :constraint_tol) &&
         throw(ArgumentError("constraint_tol was replaced by loss_tol"))
 
-    opt = Opt(:LD_SLSQP, length(theta_init))
+    opt = Opt(cobyla ? :LN_COBYLA : :LD_SLSQP, length(theta_init))
     opt.lower_bounds = first.(theta_bounds)
     opt.upper_bounds = last.(theta_bounds)
     ftol_abs!(opt, scan_tol)
     ftol_rel!(opt, scan_rtol)
     maxeval!(opt, max_iter)
+    if cobyla && !isnothing(local_initial_step)
+        initial_step!(opt, _validated_local_initial_step(local_initial_step, length(theta_init)))
+    end
 
     function stop_after_callback_error(error, code, grad, source)
         error isa NLopt.ForcedStop && throw(error)
@@ -100,7 +105,7 @@ function get_right_endpoint(
     optf, optx, ret = try
         optimize(opt, theta_init)
     catch error
-        @warn "Error in DIRECT_SLSQP optimization" exception = (error, catch_backtrace())
+        @warn "Error in direct constrained optimization" exception = (error, catch_backtrace())
         return (nothing, ProfilePoint[], :UNKNOWN_STOP)
     end
 
@@ -117,13 +122,13 @@ function get_right_endpoint(
         loss = try
             loss_func(optx)
         catch error
-            @warn "Error in loss_func after DIRECT_SLSQP" exception = (error, catch_backtrace())
+            @warn "Error in loss_func after direct constrained optimization" exception = (error, catch_backtrace())
             return (nothing, ProfilePoint[], :LOSS_ERROR_STOP)
         end
         point = ProfilePoint(optf, loss, optx, ret, nothing)
         return (optf, [point], :BORDER_FOUND_BY_SCAN_TOL)
     end
-    @warn "Unclassified DIRECT_SLSQP termination" ret
+    @warn "Unclassified direct constrained termination" ret
     return (nothing, ProfilePoint[], :UNKNOWN_STOP)
 end
 
@@ -131,7 +136,7 @@ function get_right_endpoint(
     theta_init::Vector{Float64},
     theta_num::Int,
     loss_func::Function,
-    method::Val{:DIRECT_SLSQP};
+    method::Union{Val{:DIRECT_SLSQP}, Val{:DIRECT_COBYLA}};
     kwargs...
 )
     1 <= theta_num <= length(theta_init) || throw(DomainError(theta_num, "theta_num exceeds theta dimension"))
