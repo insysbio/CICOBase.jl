@@ -1,6 +1,7 @@
 # Methods
 
- Three methods implemented in **CICOBase** package: `:CICO_ONE_PASS`,
+ Four methods implemented in **CICOBase** package: `:CICO_ONE_PASS`,
+ `:DIRECT_SLSQP`,
  `:LIN_EXTRAPOL`,
  `:QUADR_EXTRAPOL`.
 
@@ -13,8 +14,39 @@ for efficient determination of confidence intervals and detection of “non-iden
 
  The method internally calls [`NLopt`](https://nlopt.readthedocs.io/en/latest/) algorithm to build an **augmented objective function** with [`LN_AUGLAG`](https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/#augmented-lagrangian-algorithm) algorithm. Optimization algorithm choice is described in Optimizers section.
 
+`get_endpoint` and `get_interval` accept `penalty_tol` for the local solver's
+penalized objective, defaulting to `1e-6`. The relative function tolerance
+of the local solver is fixed at `0.0`. `penalty_tol` controls changes in the full penalized objective; it
+does not guarantee the accuracy of the profile loss. The outer solver uses
+`scan_tol` in scan coordinates, independently of `penalty_tol`. `loss_tol`
+sets the allowed positive loss residual for AUGLAG's feasibility check and
+defaults to `1e-3` in loss units.
+For `:CICO_ONE_PASS` and `:DIRECT_SLSQP`, `loss_tol=0.0` uses zero
+constraint tolerance. The tolerance applies to NLopt's stopping checks and
+does not establish that the returned point is close to the critical loss.
+
+For local NLopt algorithms that use `tolg`, including the TNEWTON family,
+the gradient stopping tolerance is set internally to `1e-2` and applies to
+the penalized local objective.
+
 When an endpoint has status `:SCAN_BOUND_REACHED`, `CICO_ONE_PASS` returns
 `endpoint.value = nothing` and an empty `endpoint.profilePoints`.
+
+## :DIRECT_SLSQP
+
+`:DIRECT_SLSQP` applies NLopt's `:LD_SLSQP` directly to the scan objective
+and the loss inequality. Select it using `get_interval(theta_init, theta_num,
+loss_func, :DIRECT_SLSQP; loss_crit, loss_grad=:AUTODIFF)`. The method also
+supports a scan function when `scan_grad` is supplied. It requires
+`loss_grad` as `:AUTODIFF`, `:FINITE` or a function.
+
+`scan_tol` controls the absolute objective tolerance, `loss_tol`
+controls NLopt's feasibility tolerance (default `1e-3`), and `max_iter` limits objective
+evaluations. `penalty_tol`,
+`local_alg` and `local_initial_step` do not configure this direct solver.
+`:ROUNDOFF_LIMITED` and other unclassified NLopt results produce
+`:UNKNOWN_STOP`. The experimental comparison under
+`hypo/02-nlopt-auglag` found a number of unvalidated endpoints on Bruno.
 
 ## Checking a parameter interval
 

@@ -53,7 +53,7 @@ function get_optimal(
         scale
         ),
     scan_tol::Union{Float64,Nothing} = nothing,
-    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    loss_tol::Float64 = 0.0,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
     local_initial_step = nothing,
     silent::Bool = false,

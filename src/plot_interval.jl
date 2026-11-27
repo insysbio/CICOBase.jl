@@ -131,7 +131,7 @@ function update_profile_points!(
                 pi.input.loss_func,
                 get(pi.input.options, :local_alg, DEFAULT_LOCAL_ALG),
                 get(pi.input.options, :theta_bounds, default_bounds),
-                get(pi.input.options, :loss_tol, DEFAULT_LOSS_TOL);
+                get(pi.input.options, :loss_tol, 0.0);
                 max_recursions, scale, local_initial_step = step
             )
         else

@@ -9,7 +9,8 @@ function get_right_endpoint(
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
     scan_rtol::Float64 = 0.,
-    loss_tol::Float64 = DEFAULT_LOSS_TOL, # we have no idea how to implement loss_tol
+    penalty_tol::Float64 = 1e-6,
+    loss_tol::Float64 = 1e-3,
     # better results for LN_NELDERMEAD, :LD_MMA, :LD_SLSQP, :LD_CCSAQ
     # worse results for :LN_COBYLA, :LN_PRAXIS
     # errors for :LN_BOBYQA, :LN_SBPLX, :LN_NEWUOA
@@ -41,13 +42,14 @@ function get_right_endpoint(
     # optimizer
     local_opt = Opt(local_alg, n_theta)
     # The local objective includes AUGLAG's penalty for loss_func. Its scale
-    # changes with the penalty coefficient, so local ftol_abs is not in pure
-    # scan_func units and local ftol_rel measures a different relative change.
-    # Keep the old values for now; tune both local tolerances independently.
-    local_ftol_abs = scan_tol
-    local_ftol_rel = scan_rtol
-    ftol_abs!(local_opt, local_ftol_abs)
-    ftol_rel!(local_opt, local_ftol_rel)
+    # changes with the penalty coefficient. Independent local tolerances let
+    # callers control the accuracy of these penalized subproblems.
+    for (name, tol) in ((:penalty_tol, penalty_tol),
+                        (:loss_tol, loss_tol))
+        isfinite(tol) && tol >= 0 || throw(ArgumentError("$name must be finite and nonnegative"))
+    end
+    ftol_abs!(local_opt, penalty_tol)
+    ftol_rel!(local_opt, 0.0)
     # This is not used here. Default is NULL
     #xtol_abs!(local_opt, 1e-3)
     # AUGLAG replaces a nonpositive local xtol_rel with 1e-8 when local
@@ -147,7 +149,7 @@ function get_right_endpoint(
     inequality_constraint!(
         opt,
         constraints_func,
-        MAGIC_CONSTRAINT_TOL
+        loss_tol
     )
 
     # version 1: box constraints passed to :LN_AUGLAG and local methods
@@ -231,7 +233,8 @@ function get_right_endpoint(
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
     scan_rtol::Float64 = 0.,
-    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    penalty_tol::Float64 = 1e-6,
+    loss_tol::Float64 = 1e-3,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
     local_initial_step = nothing,
     max_iter::Int = 10^5,
@@ -260,6 +263,7 @@ function get_right_endpoint(
         scan_bound,
         scan_tol,
         scan_rtol,
+        penalty_tol,
         loss_tol,
         local_alg,
         local_initial_step,

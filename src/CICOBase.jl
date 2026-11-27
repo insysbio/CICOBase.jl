@@ -16,7 +16,6 @@ module CICOBase
 # default values
 const DEFAULT_LOCAL_ALG = :LN_NELDERMEAD
 const DEFAUL_THETA_BOUNDS_ITEM = (-Inf, Inf)
-const DEFAULT_LOSS_TOL = 0.
 
 # XXX: magic numbers
 # We know that magic numbers are bad but NLopt not always provides
@@ -24,9 +23,7 @@ const DEFAULT_LOSS_TOL = 0.
 
 # LBFGS, TNEWTON_PRECOND_RESTART, TNEWTON_PRECOND, TNEWTON, VAR2, VAR1
 # see https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/
-const MAGIC_TOLG = 1e-3
-# LN_AUGLAG
-const MAGIC_CONSTRAINT_TOL = 1e-3
+const MAGIC_TOLG = 1e-2
 
 # 0 means no forced stop; NLopt.ForcedStop() uses 1. Keep 3 for a future
 # loss-tolerance stop so that callback failures have distinct reason codes.
@@ -64,6 +61,7 @@ include("structures.jl")
 include("get_endpoint.jl")
 include("get_interval.jl")
 include("cico_one_pass.jl")
+include("direct_slsqp.jl")
 include("method_lin_extrapol.jl")
 include("method_quadr_extrapol.jl")
 include("profile.jl")

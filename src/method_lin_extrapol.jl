@@ -7,7 +7,7 @@ function get_right_endpoint(
     theta_bounds::Vector{Tuple{Float64,Float64}} = fill(DEFAUL_THETA_BOUNDS_ITEM, length(theta_init)),
     scan_bound::Float64 = 9.0,
     scan_tol::Float64 = 1e-3,
-    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    loss_tol::Float64 = 0.0,
     # method args
     scan_hini = 1.,
     scan_hmax = Inf,

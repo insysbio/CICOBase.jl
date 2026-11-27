@@ -15,4 +15,11 @@ dfo_algorithms = [
     #(algorithm = :LN_COBYLA, skip = []), # Constrained Optimization BY Linear Approximations
 ]
 
-[test_alg_interval(alg; bounds=(-Inf,Inf)) for alg in dfo_algorithms]
+# Keep the original local tolerance used by these reference cases.
+for alg in dfo_algorithms
+    if alg.algorithm == :LN_PRAXIS
+        # Start PRAXIS with the same random state in standalone and full runs.
+        NLopt.srand(12345)
+    end
+    test_alg_interval(alg; bounds=(-Inf, Inf), penalty_tol=SCAN_TOL)
+end

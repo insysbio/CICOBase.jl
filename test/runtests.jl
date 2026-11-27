@@ -25,6 +25,8 @@ println("Starting tests for get_endpoint")
 println("Starting tests for all all methods of get_right_endpoint")
 @testset "get_right_endpoint methods" begin include("test_methods.jl") end
 @testset "get_right_endpoint CICO_ONE_PASS" begin include("test_cico_one_pass.jl") end
+@testset "penalty tolerance" begin include("test_penalty_tol.jl") end
+include("test_loss_tol_defaults.jl")
 
 println("Starting tests for profile")
 @testset "profile" begin include("test_profile.jl") end
@@ -48,6 +50,7 @@ println("Starting tests for get_optimal")
 
 @testset "testing derivative-free algorithms" begin include("test_deriv_free_algs.jl") end
 @testset "gradient-based algorithms" begin include("test_grad_algs.jl") end
+@testset "DIRECT_SLSQP" begin include("test_direct_slsqp.jl") end
 
 @testset "get_optimal series" begin include("test_get_optimal_series.jl") end
 

@@ -29,9 +29,10 @@ function test_alg_interval(
   func_dict::AbstractDict = test_funcs;
   bounds::Tuple{Float64,Float64} = (-Inf, Inf),
   tol::Float64 = TOL,
+  method::Symbol = :CICO_ONE_PASS,
   kwargs...
 )
-  @testset "get_interval() for $(alg.algorithm) and $(get(kwargs, :loss_grad, "-"))" begin
+  @testset "get_interval() for $method, $(alg.algorithm) and $(get(kwargs, :loss_grad, "-"))" begin
     for (f_name, f) in func_dict
       #println("Testing $f_name")
       @testset "Case $f_name" begin
@@ -40,7 +41,7 @@ function test_alg_interval(
             f.x1,
             i,
             f.func,
-            :CICO_ONE_PASS;
+            method;
             theta_bounds=fill(bounds,length(f.x1)),
             scan_tol = SCAN_TOL,
             local_alg = alg.algorithm,

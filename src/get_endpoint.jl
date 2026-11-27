@@ -102,12 +102,13 @@ unscaling(::Nothing, ::Symbol) = nothing
             scale[theta_num]
             ),
         scan_tol::Float64 = 1e-3,
-        loss_tol::Float64 = 0.,
+        penalty_tol::Float64 = 1e-6,
         local_alg::Symbol = :LN_NELDERMEAD,
         local_initial_step = nothing,
         max_iter::Int = 10^5,
         loss_grad::Union{Function, Symbol} = :EMPTY,
-        silent::Bool = false
+        silent::Bool = false,
+        kwargs...
     )
 
 Calculates confidence interval's right or left endpoints for a given parameter `theta_num`.
@@ -119,7 +120,7 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `theta_num`: index of vector component for identification: `theta_init(theta_num)`.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Currently the following methods are implemented: `:CICO_ONE_PASS`, `:LIN_EXTRAPOL`, `:QUADR_EXTRAPOL`.
+- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
 - `direction`: `:right` or `:left` endpoint to estimate.
 
 ## Keyword arguments
@@ -128,7 +129,9 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `theta_bounds` : vector of tuple `(lower_bound, upper_bound)` for each parameter. Bounds define the ranges for possible parameter values. Default bounds are `(-Inf,Inf)`.
 - `scan_bound` : value which states the area of confidence point analysis.
 - `scan_tol` : Absolute tolerance for `theta_num` parameter used as termination criterion.
-- `loss_tol` : Absolute tolerance controlling `loss_func` closeness to `loss_crit` (termination criterion). Currently doesn't work for `:CICO_ONE_PASS` method because of limitation in `LN_AUGLAG` interface.
+- `penalty_tol`: Absolute tolerance for changes in the local AUGLAG penalized objective; defaults to `1e-6` independently of `scan_tol`. It does not guarantee profile loss accuracy. Used by `:CICO_ONE_PASS`.
+- `loss_tol`: For `:CICO_ONE_PASS` and `:DIRECT_SLSQP`, the absolute tolerance for positive loss constraint violation in NLopt's stopping checks, default `1e-3`. For extrapolation methods, the default is `0.0` and the tolerance controls proximity to the critical loss.
+- `kwargs...`: Other options passed to the selected endpoint method.
 - `local_alg` : algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
 - `local_initial_step`: nonzero scalar or full parameter vector of initial steps in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
 - `max_iter` : maximal number of fitter iterations. If reaches the result status will be `:MAX_ITER_STOP`.
@@ -160,13 +163,13 @@ function get_endpoint(
         scale[theta_num]
         ),
     scan_tol::Float64 = 1e-3,
-    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    penalty_tol::Float64 = 1e-6,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
     local_initial_step = nothing,
     max_iter::Int = 10^5,
     loss_grad::Union{Function, Symbol} = :EMPTY,
     silent::Bool = false,
-    #kwargs... # other options for get_right_endpoint
+    kwargs... # method-specific options
 )
     isLeft = direction == :left
     n_theta = length(theta_init)
@@ -279,12 +282,12 @@ function get_endpoint(
         theta_bounds = theta_bounds_gd,
         scan_bound = scan_bound_gd,
         scan_tol,
-        loss_tol,
+        penalty_tol,
         local_alg,
         local_initial_step,
         max_iter,
-        loss_grad = loss_grad_gd
-        #kwargs...
+        loss_grad = loss_grad_gd,
+        kwargs...
     )
 
     # transforming back
@@ -332,7 +335,7 @@ end
             scale[theta_num]
             ),
         scan_tol::Float64 = 1e-3,
-        loss_tol::Float64 = 0.,
+        penalty_tol::Float64 = 1e-6,
         local_alg::Symbol = :LN_NELDERMEAD,
         local_initial_step = nothing,
         kwargs...
@@ -347,7 +350,7 @@ Calculates confidence interval's right or left endpoints for a function of param
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `scan_func`: function of parameters.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Currently the only supported method is: `:CICO_ONE_PASS`.
+- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS` and `:DIRECT_SLSQP`.
 - `direction`: `:right` or `:left` endpoint to estimate.
 
 ## Keyword arguments
@@ -356,7 +359,8 @@ Calculates confidence interval's right or left endpoints for a function of param
 - `theta_bounds`: vector of tuple `(lower_bound, upper_bound)` for each parameter. Bounds define the ranges for possible parameter values. Default bounds are `(-Inf,Inf)`.
 - `scan_bound`: value which states the area of confidence point analysis.
 - `scan_tol`: Absolute tolerance for `theta_num` parameter used as termination criterion.  
-- `loss_tol`: Absolute tolerance controlling `loss_func` closeness to `loss_crit` (termination criterion). Currently doesn't work for `:CICO_ONE_PASS` method because of limitation in `LN_AUGLAG` interface.
+- `penalty_tol`: Absolute tolerance for changes in the local AUGLAG penalized objective; defaults to `1e-6` independently of `scan_tol`. It does not guarantee profile loss accuracy. Used by `:CICO_ONE_PASS`.
+- `loss_tol`: Absolute tolerance for positive loss constraint violation in NLopt's stopping checks. Defaults to `1e-3`.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
 - `local_initial_step`: nonzero scalar or parameter vector of initial steps in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
 - `max_iter` : maximal number of fitter iterations. If reaches the result status will be `:MAX_ITER_STOP`.
@@ -390,14 +394,14 @@ function get_endpoint(
         ),
     scan_bound::Float64 = (direction==:left) ? -1e9 : 1e9, # log scan bound is not implemented
     scan_tol::Float64 = 1e-3,
-    loss_tol::Float64 = DEFAULT_LOSS_TOL,
+    penalty_tol::Float64 = 1e-6,
     local_alg::Symbol = DEFAULT_LOCAL_ALG,
     local_initial_step = nothing,
     max_iter::Int = 10^5,
     scan_grad::Union{Function, Symbol} = :EMPTY,
     loss_grad::Union{Function, Symbol} = :EMPTY,
     silent::Bool = false,
-    #kwargs... # other options for get_right_endpoint
+    kwargs... # method-specific options
 )
     isLeft = direction == :left
     n_theta = length(theta_init)
@@ -529,13 +533,13 @@ function get_endpoint(
         theta_bounds = theta_bounds_gd,
         scan_bound = scan_bound_gd,
         scan_tol,
-        loss_tol,
+        penalty_tol,
         local_alg,
         local_initial_step,
         max_iter,
         scan_grad = scan_grad_gd,
         loss_grad = loss_grad_gd,
-        #kwargs...
+        kwargs...
     )
 
     # transforming back
