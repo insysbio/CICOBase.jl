@@ -1,9 +1,48 @@
-function get_value(x::Real)
-    if isa(x, ForwardDiff.Dual)
-        return x.value
-    else
-        return x
+get_value(x::Real) = x
+get_value(x::ForwardDiff.Dual) = get_value(ForwardDiff.value(x))
+
+# Transform a supplied loss Hessian from the original parameter scale to the
+# optimization coordinates, including the second derivative of each scale.
+function _transform_ipopt_loss_hessian(hessian::Function, loss_func::Function,
+    loss_grad, scale::Vector{Symbol}, flip_index::Int)
+    function transformed(z)
+        y = copy(z)
+        flip_index != 0 && (y[flip_index] *= -1)
+        theta = unscaling.(y, scale)
+        n = length(theta)
+        h = hessian(theta)
+        size(h) == (n, n) || throw(DimensionMismatch("hessian must be $n by $n"))
+        need_gradient = any(s -> s == :log || s == :logit, scale)
+        grad = if !need_gradient
+            zeros(n)
+        elseif loss_grad isa Function
+            loss_grad(theta)
+        elseif loss_grad == :FINITE
+            g = zeros(n)
+            Calculus.finite_difference!(loss_func, theta, g, :central)
+            g
+        else
+            ForwardDiff.gradient(loss_func, theta)
+        end
+        d = ones(n)
+        d2 = zeros(n)
+        for i in 1:n
+            if scale[i] == :log
+                d[i] = theta[i] * log(10.0)
+                d2[i] = theta[i] * log(10.0)^2
+            elseif scale[i] == :logit
+                d[i] = theta[i] * (1 - theta[i]) * log(10.0)
+                d2[i] = theta[i] * (1 - theta[i]) * (1 - 2theta[i]) * log(10.0)^2
+            end
+        end
+        flip_index != 0 && (d[flip_index] *= -1)
+        result = (d * transpose(d)) .* h
+        for i in 1:n
+            result[i, i] += grad[i] * d2[i]
+        end
+        return result
     end
+    return transformed
 end
 
 """
@@ -120,7 +159,7 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `theta_num`: index of vector component for identification: `theta_init(theta_num)`.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
+- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA`, `:DIRECT_IPOPT`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
 - `direction`: `:right` or `:left` endpoint to estimate.
 
 ## Keyword arguments
@@ -129,7 +168,14 @@ Calculates confidence interval's right or left endpoints for a given parameter `
 - `theta_bounds` : vector of tuple `(lower_bound, upper_bound)` for each parameter. Bounds define the ranges for possible parameter values. Default bounds are `(-Inf,Inf)`.
 - `scan_bound` : value which states the area of confidence point analysis.
 - `scan_tol` : Absolute tolerance for `theta_num` parameter used as termination criterion.
+- For `:DIRECT_IPOPT`, `scan_tol` is instead Ipopt's scaled optimality `tol`;
+  `loss_tol` sets its absolute constraint-violation tolerance for all constraints,
+  including the scan bound, and `max_iter`
+  counts Ipopt iterations. Both tolerances must be positive. The scan bound is
+  imposed as a constraint; a solution at that bound with loss below the critical
+  level by more than `loss_tol` is reported as `:SCAN_BOUND_REACHED`.
 - `penalty_tol`: Absolute tolerance for changes in the local AUGLAG penalized objective; defaults to `1e-6` independently of `scan_tol`. It does not guarantee profile loss accuracy. Used by `:CICO_ONE_PASS`.
+- `hessian`: For `:DIRECT_IPOPT`, `:LIMITED_MEMORY` (default) uses Ipopt's approximation; `:AUTODIFF` computes the Lagrangian Hessian with ForwardDiff; or supply `hessian(theta)` returning the loss Hessian in the original parameter scale. The Hessian of a nonlinear scan function uses ForwardDiff.
 - `loss_tol`: For `:CICO_ONE_PASS`, `:DIRECT_SLSQP` and `:DIRECT_COBYLA`, the absolute tolerance for positive loss constraint violation in NLopt's stopping checks, default `1e-3`. For extrapolation methods, the default is `0.0` and the tolerance controls proximity to the critical loss.
 - `kwargs...`: Other options passed to the selected endpoint method.
 - `local_alg` : algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
@@ -273,6 +319,11 @@ function get_endpoint(
         loss_grad
     end
 
+    method_kwargs = if method == :DIRECT_IPOPT && get(kwargs, :hessian, nothing) isa Function
+        merge((; kwargs...), (; hessian=_transform_ipopt_loss_hessian(kwargs[:hessian], loss_func, loss_grad, scale, isLeft ? theta_num : 0)))
+    else
+        (; kwargs...)
+    end
     # calculate endpoint using base method
     (optf_gd, pp_gd, status) = get_right_endpoint(
         theta_init_gd,
@@ -287,7 +338,7 @@ function get_endpoint(
         local_initial_step,
         max_iter,
         loss_grad = loss_grad_gd,
-        kwargs...
+        method_kwargs...
     )
 
     # transforming back
@@ -350,7 +401,7 @@ Calculates confidence interval's right or left endpoints for a function of param
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `scan_func`: function of parameters.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS`, `:DIRECT_SLSQP` and `:DIRECT_COBYLA`.
+- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA` and `:DIRECT_IPOPT`.
 - `direction`: `:right` or `:left` endpoint to estimate.
 
 ## Keyword arguments
@@ -359,7 +410,11 @@ Calculates confidence interval's right or left endpoints for a function of param
 - `theta_bounds`: vector of tuple `(lower_bound, upper_bound)` for each parameter. Bounds define the ranges for possible parameter values. Default bounds are `(-Inf,Inf)`.
 - `scan_bound`: value which states the area of confidence point analysis.
 - `scan_tol`: Absolute tolerance for `theta_num` parameter used as termination criterion.  
+- For `:DIRECT_IPOPT`, `scan_tol` is Ipopt's scaled optimality `tol` and
+  `loss_tol` sets its absolute tolerance for all constraint violations; both must be positive.
+  `max_iter` counts Ipopt iterations and the scan bound is imposed as a constraint.
 - `penalty_tol`: Absolute tolerance for changes in the local AUGLAG penalized objective; defaults to `1e-6` independently of `scan_tol`. It does not guarantee profile loss accuracy. Used by `:CICO_ONE_PASS`.
+- `hessian`: For `:DIRECT_IPOPT`, `:LIMITED_MEMORY` (default) uses Ipopt's approximation; `:AUTODIFF` computes the Lagrangian Hessian with ForwardDiff; or supply `hessian(theta)` returning the loss Hessian in the original parameter scale. The Hessian of a nonlinear scan function uses ForwardDiff.
 - `loss_tol`: Absolute tolerance for positive loss constraint violation in NLopt's stopping checks. Defaults to `1e-3`.
 - `local_alg`: algorithm of optimization. Derivative-free and gradient-based algorithms form NLopt package. 
 - `local_initial_step`: nonzero scalar or parameter vector of initial steps in the optimization coordinates. By default, `nothing` lets NLopt choose the step; an explicit zero component raises an error.
@@ -523,6 +578,11 @@ function get_endpoint(
         loss_grad
     end
 
+    method_kwargs = if method == :DIRECT_IPOPT && get(kwargs, :hessian, nothing) isa Function
+        merge((; kwargs...), (; hessian=_transform_ipopt_loss_hessian(kwargs[:hessian], loss_func, loss_grad, scale, 0)))
+    else
+        (; kwargs...)
+    end
     # calculate endpoint using base method
     (optf_gd, pp_gd, status) = get_right_endpoint(
         theta_init_gd,
@@ -539,7 +599,7 @@ function get_endpoint(
         max_iter,
         scan_grad = scan_grad_gd,
         loss_grad = loss_grad_gd,
-        kwargs...
+        method_kwargs...
     )
 
     # transforming back

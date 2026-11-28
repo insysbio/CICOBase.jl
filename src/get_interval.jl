@@ -69,7 +69,7 @@ Computes confidence interval for single component `theta_num` of parameter vecto
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `theta_num`: index of vector component for identification: `theta_init(theta_num)`.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` for profile likelihood-based (PL) identification. Usually we use log-likelihood for PL analysis: ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
+- `method`: computational method to estimate confidence interval's endpoint. Available methods include `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA`, `:DIRECT_IPOPT`, `:LIN_EXTRAPOL`, and `:QUADR_EXTRAPOL`.
 
 ## Keyword arguments
 - `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.
@@ -156,7 +156,7 @@ Computes confidence interval for function of parameters `scan_func`.
 - `theta_init`: starting values of parameter vector ``\\theta``. The starting values should not necessary be the optimum values of `loss_func` but `loss_func(theta_init)` should be lower than `loss_crit`.
 - `scan_func`: scan function of parameters.
 - `loss_func`: loss function ``\\Lambda\\left(\\theta\\right)`` the profile of which is analyzed. Usually we use log-likelihood for profile analysis in form ``\\Lambda( \\theta ) = - 2 ln\\left( L(\\theta) \\right)``.
-- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS`, `:DIRECT_SLSQP` and `:DIRECT_COBYLA`.
+- `method`: computational method to estimate confidence interval's endpoint. Supports `:CICO_ONE_PASS`, `:DIRECT_SLSQP`, `:DIRECT_COBYLA` and `:DIRECT_IPOPT`.
 
 ## Keyword arguments
 - `loss_crit`: critical value of loss function for identification. Default is `0.`. The value should be lower than `loss_func(theta_init)`.

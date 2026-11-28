@@ -3,3 +3,5 @@
 /draft
 .ipynb_checkpoints
 Manifest.toml
+/.julia-depot/
+/hypo/

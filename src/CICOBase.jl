@@ -35,6 +35,7 @@ const STOP_CODE_LOSS_GRAD_ERROR = 6
 const STOP_CODE_SCAN_GRAD_ERROR = 7
 
 using NLopt, ForwardDiff
+import Ipopt
 using Calculus
 using LinearAlgebra
 using RecipesBase
@@ -62,6 +63,7 @@ include("get_endpoint.jl")
 include("get_interval.jl")
 include("cico_one_pass.jl")
 include("direct_slsqp.jl")
+include("direct_ipopt.jl")
 include("method_lin_extrapol.jl")
 include("method_quadr_extrapol.jl")
 include("profile.jl")

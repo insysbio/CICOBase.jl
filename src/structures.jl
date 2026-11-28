@@ -9,7 +9,9 @@
     end
 
 Structure storing one point from a profile function. `ret` is the result code
-returned by NLopt, or `:OPTIMIZATION_SKIPPED` when no optimization was run.
+returned by the optimizer, or `:OPTIMIZATION_SKIPPED` when no optimization was run.
+For Ipopt, `:IPOPT_SOLVED` and `:IPOPT_ACCEPTABLE` distinguish successful and
+acceptable-level termination.
 Common NLopt codes are:
 
 - `:FTOL_REACHED`: the optimizer met its objective-value tolerance; this alone
@@ -48,6 +50,8 @@ CICOBase result code, distinct from the NLopt code in `ProfilePoint.ret`:
 
 - `:BORDER_FOUND_BY_SCAN_TOL`: the method returned an endpoint estimate after
   meeting its scan tolerance. This does not guarantee an exact loss boundary.
+  For `:DIRECT_IPOPT`, this instead means that Ipopt reported successful or
+  acceptable convergence; `scan_tol` is passed as Ipopt's scaled optimality `tol`.
 - `:BORDER_FOUND_BY_LOSS_TOL`: an extrapolation method found a profile loss
   within `loss_tol` of the critical level.
 - `:SCAN_BOUND_REACHED`: the scan limit was reached while the loss was below
